@@ -208,3 +208,4 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .points { gap: 14px; }
 .rt-list li { margin-bottom: 10px; }
 .compare li { margin-bottom: 8px; }
+.fold summary::-webkit-details-marker { display: none; }
