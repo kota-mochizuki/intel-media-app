@@ -76,8 +76,8 @@ button, input, textarea { font: inherit; color: inherit; }
 .action.is-done span { color: var(--muted); }
 .fold { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; font-size: 14.5px; }
 .fold summary { cursor: pointer; color: var(--ink-2); font-weight: 600; list-style: none; padding: 2px 0; }
-.fold summary::before { content: "▸ "; color: var(--muted); }
-.fold[open] summary::before { content: "▾ "; }
+.fold > summary::before { content: "▸ "; color: var(--muted); }
+.fold[open] > summary::before { content: "▾ "; }
 .sources, .polish, .steps { padding-left: 1.2em; margin: 8px 0 4px; line-height: 1.7; }
 .sources li, .polish li, .steps li { margin-bottom: 8px; overflow-wrap: anywhere; }
 
@@ -243,3 +243,26 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .gear { position: absolute; top: calc(34px + env(safe-area-inset-top)); right: max(12px, calc((100vw - 40rem) / 2 - 8px)); z-index: 6; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--muted); opacity: .55; text-decoration: none; }
 .gear:hover, .gear:focus-visible { opacity: 1; background: var(--soft); }
 .back { display: inline-block; margin: 14px 4px 0; font-size: 14px; color: var(--muted); text-decoration: none; }
+
+/* やることリスト */
+.checklist { border-top: 4px solid var(--accent); }
+.cl-title { font-size: 19px; margin: 0 0 6px; }
+.cl-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 14px; }
+.cl-days b { margin-left: .4em; color: var(--accent); font-size: 17px; }
+.cl-bar { height: 8px; border-radius: 999px; background: var(--soft); overflow: hidden; margin: 8px 0 4px; }
+.cl-bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s; }
+.cl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.cl-row label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 16px; line-height: 1.65; font-weight: 600; }
+.cl-row input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--accent); flex: none; }
+.cl-row.is-done .cl-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--muted); font-weight: 400; }
+.cl-chips { display: flex; gap: 6px; margin: 4px 0 0 30px; }
+.chip-soon { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.cl-note { margin: 2px 0 0 30px; border-top: 0; padding-top: 2px; font-size: 14px; }
+.cl-note summary { font-weight: 400; color: var(--muted); }
+.cl-section { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+.cl-section > summary { display: block; cursor: pointer; font-weight: 700; font-size: 15px; line-height: 1.5; list-style: none; padding: 2px 0 10px; }
+.cl-section > summary::-webkit-details-marker { display: none; }
+.cl-section > summary::marker { content: ""; }
+.cl-count { float: right; margin-left: 10px; }
+.cl-sname::before { content: "▸ "; color: var(--muted); }
+.cl-section[open] > summary .cl-sname::before { content: "▾ "; }

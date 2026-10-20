@@ -1,7 +1,7 @@
 // 配信の読み込みとフィードバックの保存。
 // データは非公開リポジトリ（intel-media-data）に置き、端末に保存したトークンで GitHub API から読み書きする。
 // ?demo を付けると、手元の public/demo/ を読む（公開版には含まれない）。
-import type { Brief, Feedback, Issue } from '../types';
+import type { Brief, Checklist, ChecksState, Feedback, Issue } from '../types';
 import { emptyFeedback } from './feedback';
 import { fromB64, toB64 } from './b64';
 import * as store from './store';
@@ -142,7 +142,81 @@ export async function flushFeedback(id: string): Promise<SaveState> {
 
 export async function flushAll(): Promise<void> {
   for (const k of store.keys(P + 'fb:')) await flushFeedback(k.slice((P + 'fb:').length));
+  for (const k of store.keys(P + 'ck:')) await flushChecks(k.slice((P + 'ck:').length));
 }
 
 /** 過去の一覧用：端末にある既読の記録（なければ null） */
 export const feedbackMap = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, localFeedback(id)]));
+
+// ---- やることリスト ----
+export const cachedListIds = () => store.get<string[]>(P + 'listIds') ?? [];
+export const cachedList = (id: string) => store.get<Checklist>(P + 'list:' + id);
+
+export async function fetchListIds(): Promise<string[]> {
+  let ids: string[];
+  if (isDemo()) {
+    const r = await fetch('./demo/lists/index.json', { cache: 'no-store' });
+    ids = r.ok ? await r.json() : [];
+  } else {
+    const res = await gh('lists');
+    if (res.status === 404) ids = [];
+    else if (!res.ok) throw new HttpError(res.status);
+    else ids = ((await res.json()) as { name: string }[]).map((f) => f.name).filter((n) => n.endsWith('.json')).map((n) => n.slice(0, -5));
+  }
+  store.set(P + 'listIds', ids);
+  return ids;
+}
+
+export async function fetchList(id: string): Promise<Checklist> {
+  const res = isDemo() ? await fetch(`./demo/lists/${id}.json`, { cache: 'no-store' }) : await gh(`lists/${id}.json`, {}, true);
+  if (!res.ok) throw new HttpError(res.status);
+  const l = (await res.json()) as Checklist;
+  store.set(P + 'list:' + id, l);
+  return l;
+}
+
+// チェックの状態（checks/<名前>.json）。入力はすぐ端末に控え、あとで GitHub に送る
+const emptyChecks = (id: string): ChecksState => ({ id, done: {}, updatedAt: new Date(0).toISOString() });
+const ckKey = (id: string) => P + 'ck:' + id;
+export const localChecks = (id: string) => store.get<FbRecord2>(ckKey(id))?.data ?? null;
+interface FbRecord2 { data: ChecksState; sha?: string; dirty: boolean }
+
+export async function loadChecks(id: string): Promise<ChecksState> {
+  const rec = store.get<FbRecord2>(ckKey(id));
+  if (rec?.dirty || isDemo()) return rec?.data ?? emptyChecks(id);
+  const res = await gh(`checks/${id}.json`);
+  if (res.status === 404) return rec?.data ?? emptyChecks(id);
+  if (!res.ok) throw new HttpError(res.status);
+  const body = (await res.json()) as { content: string; sha: string };
+  const data = { ...emptyChecks(id), ...(JSON.parse(fromB64(body.content)) as ChecksState) };
+  store.set(ckKey(id), { data, sha: body.sha, dirty: false } satisfies FbRecord2);
+  return data;
+}
+
+export function saveChecksLocal(st: ChecksState): void {
+  const rec = store.get<FbRecord2>(ckKey(st.id));
+  store.set(ckKey(st.id), { data: st, sha: rec?.sha, dirty: true } satisfies FbRecord2);
+}
+
+export async function flushChecks(id: string): Promise<SaveState> {
+  const rec = store.get<FbRecord2>(ckKey(id));
+  if (!rec?.dirty) return 'saved';
+  if (isDemo()) { store.set(ckKey(id), { ...rec, dirty: false }); return 'saved'; }
+  if (!navigator.onLine) return 'queued';
+  const put = (sha?: string) => gh(`checks/${id}.json`, {
+    method: 'PUT',
+    body: JSON.stringify({ message: `チェック ${id}`, content: toB64(JSON.stringify(rec.data, null, 2) + '\n'), ...(sha ? { sha } : {}) }),
+  });
+  try {
+    let res = await put(rec.sha);
+    if (res.status === 409 || res.status === 422) {
+      const cur = await gh(`checks/${id}.json`);
+      res = await put(cur.ok ? ((await cur.json()) as { sha: string }).sha : undefined);
+    }
+    if (!res.ok) return 'queued';
+    const sha = ((await res.json()) as { content: { sha: string } }).content.sha;
+    const latest = store.get<FbRecord2>(ckKey(id));
+    store.set(ckKey(id), { data: latest?.data ?? rec.data, sha, dirty: latest ? latest.data.updatedAt !== rec.data.updatedAt : false });
+    return 'saved';
+  } catch { return 'queued'; }
+}

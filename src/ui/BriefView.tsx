@@ -3,6 +3,7 @@ import { cachedBriefIds, fetchBriefIds } from '../lib/data';
 import { formatDate, todayJst } from '../lib/dates';
 import { BriefCard, useBrief } from './BriefCard';
 import { useFeedback } from './useFeedback';
+import { ChecklistCards } from './ChecklistCard';
 
 /** 「秘書」タブ：いちばん新しい秘書の朝の報告と、過去の報告への切り替え */
 export function BriefView() {
@@ -17,10 +18,13 @@ export function BriefView() {
   const id = picked ?? latest;
   if (!id) {
     return (
-      <section className="card welcome">
-        <h1>まだ秘書の報告はありません</h1>
-        <p>毎朝5時45分ごろに、今日・今週・今月にやることと、この先の見通しが届きます。</p>
-      </section>
+      <div className="briefview">
+        <section className="card welcome">
+          <h1>まだ秘書の報告はありません</h1>
+          <p>毎朝5時45分ごろに、今日・今週・今月にやることと、この先の見通しが届きます。</p>
+        </section>
+        <ChecklistCards />
+      </div>
     );
   }
   return (
@@ -33,6 +37,7 @@ export function BriefView() {
         </div>
       </header>
       <BriefOf key={id} id={id} />
+      <ChecklistCards />
       {ids.length > 1 && (
         <details className="fold past-briefs">
           <summary>過去の報告（{ids.length - 1}）</summary>

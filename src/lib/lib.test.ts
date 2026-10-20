@@ -73,3 +73,23 @@ describe('phrases', () => {
     expect(ps.some((x) => x.includes('「勤め先の従業員数」'))).toBe(true);
   });
 });
+
+import { daysUntil, nextItems, progress } from './checklist';
+import type { Checklist } from '../types';
+describe('checklist', () => {
+  const c: Checklist = { id: 'x', title: 't', target: '2026-11-22', sections: [
+    { id: 's1', title: 'a', items: [
+      { id: '1', text: 'あと', who: '2人', due: '2026-12-01' },
+      { id: '2', text: '先', who: '2人', due: '2026-11-05' },
+      { id: '3', text: '期限なし', who: '自分' },
+      { id: '4', text: '済み', who: '自分', due: '2026-11-01' },
+    ] },
+  ] };
+  it('日数の差と進み具合', () => {
+    expect(daysUntil('2026-11-22', '2026-10-20')).toBe(33);
+    expect(progress(c, { '4': true })).toEqual({ done: 1, total: 4 });
+  });
+  it('次の一手は、終わっていない項目を期限が近い順に。期限なしは最後', () => {
+    expect(nextItems(c, { '4': true }, 3).map((i) => i.id)).toEqual(['2', '1', '3']);
+  });
+});
