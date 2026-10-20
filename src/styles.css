@@ -140,3 +140,37 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 @keyframes pulse { 50% { opacity: .55; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 .card > .sub:first-child { margin-top: 0; }
+
+/* 図 */
+.fig { margin: 18px 0 16px; padding: 14px 14px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+.fig-title { font-size: 14.5px; font-weight: 800; line-height: 1.55; margin-bottom: 12px; }
+.fig-note, .fig-source { font-size: 12.5px; line-height: 1.6; color: var(--muted); margin: 8px 0 0; }
+.fig-source a { color: var(--muted); }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: minmax(0, 8.5em) 1fr auto; align-items: center; gap: 10px; font-size: 13.5px; line-height: 1.4; }
+.bar-label { color: var(--ink-2); }
+.bar-track { height: 14px; background: var(--soft); border-radius: 999px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.bar-value { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; }
+.bar-value small { font-weight: 600; font-size: 11px; margin-left: 1px; color: var(--muted); }
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.flow-step { position: relative; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 8px 12px; }
+.flow-step + .flow-step::before { content: "↓"; position: absolute; top: -21px; left: 18px; color: var(--accent); font-weight: 800; font-size: 14px; }
+.flow-label { display: block; font-weight: 700; font-size: 14.5px; line-height: 1.5; }
+.flow-detail { display: block; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+.compare { display: grid; gap: 8px; }
+.compare-col { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 4px; min-width: 0; }
+.compare-col:first-child { border-top: 4px solid var(--accent); }
+.compare-col:not(:first-child) { border-top: 4px solid var(--muted); }
+.compare-head { font-weight: 800; font-size: 14px; line-height: 1.45; margin-bottom: 6px; }
+.compare ul { margin: 0; padding-left: 1.1em; font-size: 13px; line-height: 1.6; }
+.compare li { margin-bottom: 6px; }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--line); display: grid; gap: 12px; }
+.timeline li { position: relative; display: grid; gap: 1px; }
+.timeline li::before { content: ""; position: absolute; left: -20px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.tl-date { font-size: 12.5px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.tl-label { font-size: 14px; line-height: 1.6; }
+/* 今日の一枚 */
+.art { margin: 4px 0 12px; }
+.art img { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--soft); }
+.art figcaption { margin-top: 6px; }

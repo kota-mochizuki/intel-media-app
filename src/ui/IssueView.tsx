@@ -4,6 +4,7 @@ import { cachedIssue, fetchIssue } from '../lib/data';
 import { formatDate, readMinutes, themeOf } from '../lib/dates';
 import { setItem } from '../lib/feedback';
 import { useFeedback, type Status } from './useFeedback';
+import { Artwork, Figure } from './Figure';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -58,6 +59,7 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
       {issue.bonus && (
         <section className="card bonus">
           <div className="label">おまけ ・ {issue.bonus.type}</div>
+          {issue.bonus.image && <Artwork img={issue.bonus.image} />}
           <p>{issue.bonus.body}</p>
           {issue.bonus.answer && <p className="muted small">答えは次の配信で。</p>}
           {issue.bonus.source && <p className="small"><a href={issue.bonus.source.url} target="_blank" rel="noreferrer">{issue.bonus.source.title}</a>（{issue.bonus.source.publisher}）</p>}
@@ -102,6 +104,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
         <p>{item.insight.text}</p>
       </div>
       {item.summary.split('\n').filter(Boolean).map((p, i) => <p key={i} className="body">{p}</p>)}
+      {item.figure && <Figure fig={item.figure} />}
       <h3 className="sub">私にとっての重要性</h3>
       <p className="body">{item.why}</p>
       {item.action && (
