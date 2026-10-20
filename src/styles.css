@@ -238,3 +238,8 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .briefview .brief > .label { display: none; }
 .past-briefs { margin: 4px 2px 24px; }
 .linklike { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 15px; }
+
+/* 設定はタブに出さず、右上の小さな歯車に隠す */
+.gear { position: absolute; top: calc(34px + env(safe-area-inset-top)); right: max(12px, calc((100vw - 40rem) / 2 - 8px)); z-index: 6; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--muted); opacity: .55; text-decoration: none; }
+.gear:hover, .gear:focus-visible { opacity: 1; background: var(--soft); }
+.back { display: inline-block; margin: 14px 4px 0; font-size: 14px; color: var(--muted); text-decoration: none; }

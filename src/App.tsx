@@ -60,10 +60,12 @@ export function App() {
       <main className="main">{body}</main>
       <nav className="tabbar" aria-label="メニュー">
         <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />今日</a>
-        <a href="#/brief" className={tab === 'brief' ? 'on' : ''}><TabIcon d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1ZM8 6H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-2M8.5 12l2 2 4-4.5M8.5 17h7" />秘書</a>
         <a href="#/past" className={tab === 'past' ? 'on' : ''}><TabIcon d="M4 5h16M4 10h16M4 15h10M4 20h7" />過去</a>
-        <a href="#/settings" className={tab === 'settings' ? 'on' : ''}><TabIcon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-1-3-2 .2-1.3-1.4.2-2-3-1-1 2h-1.8l-1-2-3 1 .2 2L5 7.2 3 7l-1 3 2 1v2l-2 1 1 3 2-.2 1.3 1.4-.2 2 3 1 1-2h1.8l1 2 3-1-.2-2 1.3-1.4 2 .2 1-3-2-1Z" />設定</a>
+        <a href="#/brief" className={tab === 'brief' ? 'on' : ''}><TabIcon d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1ZM8 6H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-2M8.5 12l2 2 4-4.5M8.5 17h7" />秘書</a>
       </nav>
+      {route.tab !== 'settings' && (
+        <a href="#/settings" className="gear" aria-label="設定"><TabIcon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-1-3-2 .2-1.3-1.4.2-2-3-1-1 2h-1.8l-1-2-3 1 .2 2L5 7.2 3 7l-1 3 2 1v2l-2 1 1 3 2-.2 1.3 1.4-.2 2 3 1 1-2h1.8l1 2 3-1-.2-2 1.3-1.4 2 .2 1-3-2-1Z" /></a>
+      )}
     </>
   );
 }

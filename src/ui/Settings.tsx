@@ -19,6 +19,7 @@ export function Settings({ onSaved }: { onSaved: () => void }) {
 
   return (
     <div className="settings">
+      <a className="back" href="#/">← 今日にもどる</a>
       <h1 className="page-title">設定</h1>
       {isDemo() && <p className="gentle">いまは見本データ（demo）を表示しています。</p>}
 
