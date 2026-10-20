@@ -193,14 +193,17 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 /* 改行の位置（参考：伝わるデザイン「箇条書きと段落」）
    - 文節の切れ目（wbr）だけで改行し、単語や「〜のは」を分断しない。長すぎる語は最後の手段として折り返す
    - 禁則処理を厳しめに。最終行が1〜2文字だけにならないよう pretty を全体に */
-.issue { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }
+/* keep-all はブラウザごとに挙動が違い（iPhone の Safari で「「」が行末に残る・8.8 が割れる）、文節に分けていない
+   文章では句読点が行頭に来るので使わない。代わりに文節を「中で改行しない箱（.ph）」に入れる */
+.issue { line-break: strict; overflow-wrap: break-word; }
+.ph { white-space: nowrap; }
 .issue :is(p, li, h2, h3, figcaption, label, .compare-head, .flow-label, .flow-detail, .tl-label) { text-wrap: pretty; }
 /* 比べる表：スマホでは2列だと1行7字ほどになり、文節が収まらず不自然に折り返す。狭い画面では縦に並べる */
 @media (max-width: 520px) {
   .compare { grid-template-columns: 1fr !important; }
 }
 .title, .masthead-date { text-wrap: balance; }
-.nobr, strong.nobr { white-space: nowrap; }
+.nobr { white-space: nowrap; }
 /* 箇条書き：項目の間を、項目内の行間より広く */
 .points { gap: 14px; }
 .rt-list li { margin-bottom: 10px; }

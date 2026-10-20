@@ -61,6 +61,12 @@ describe('phrases', () => {
     }
     expect(phrases('1回に送り出す血液量：早期に低下し')).toContain('早期に');
   });
+  it('開き括弧で文節が終わらない', async () => {
+    const { tidy } = await import('./phrases');
+    expect(tidy(['先に「', '2人の', '目標']).join('|')).toBe('先に|「2人の|目標');
+    expect(tidy(['家計の話', '（', '私生活）と']).join('|')).toBe('家計の話|（私生活）と');
+    expect(tidy(['出所は、', '金融専門家・機関5', '9%、', 'AI19%。']).join('|')).toBe('出所は、|金融専門家・機関59%、|AI19%。');
+  });
   it('短いかぎ括弧の中は分けない', () => {
     const ps = phrases('相談のヒアリング項目に「週の所定労働時間」と「勤め先の従業員数」を足す。');
     expect(ps.some((x) => x.includes('「週の所定労働時間」'))).toBe(true);

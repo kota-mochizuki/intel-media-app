@@ -63,7 +63,7 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
           {issue.bonus.image && <Artwork img={issue.bonus.image} />}
           <p><Inline text={issue.bonus.body} /></p>
           {issue.bonus.answer && <p className="muted small">答えは次の配信で。</p>}
-          {issue.bonus.source && <p className="small"><a href={issue.bonus.source.url} target="_blank" rel="noreferrer">{issue.bonus.source.title}</a>（{issue.bonus.source.publisher}）</p>}
+          {issue.bonus.source && <p className="small"><a href={issue.bonus.source.url} target="_blank" rel="noreferrer"><Inline text={issue.bonus.source.title} /></a><span className="nobr">（{issue.bonus.source.publisher}）</span></p>}
         </section>
       )}
 
@@ -128,13 +128,13 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
       <details className="fold">
         <summary>出典（{item.sources.length}）</summary>
         <ul className="sources">
-          {item.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a><span className="muted">（{s.publisher}、<span className="nobr">{s.published}</span>）</span></li>)}
+          {item.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer"><Inline text={s.title} /></a><span className="muted">（{s.publisher}、<span className="nobr">{s.published}</span>）</span></li>)}
         </ul>
         {item.recencyNote && <p className="small muted">古い出典を使う理由：{item.recencyNote}</p>}
       </details>
       <details className="fold">
         <summary>編集メモ（見直しの記録）</summary>
-        <ol className="polish">{item.polish.map((p, i) => <li key={i}><b>{p.angle}</b>：{p.change}</li>)}</ol>
+        <ol className="polish">{item.polish.map((p, i) => <li key={i}><b><Inline text={p.angle} /></b>：<Inline text={p.change} /></li>)}</ol>
       </details>
       <div className="react">
         <button className={`react-btn ${fb.star ? 'on' : ''}`} aria-pressed={Boolean(fb.star)} onClick={() => onChange({ star: !fb.star })}>

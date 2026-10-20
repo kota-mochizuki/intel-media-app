@@ -60,7 +60,7 @@ export function Artwork({ img }: { img: BonusImage }) {
   return (
     <figure className="art">
       <a href={img.page} target="_blank" rel="noreferrer"><img src={img.url} alt={img.alt} loading="lazy" decoding="async" /></a>
-      <figcaption className="small muted">{img.credit}（{img.license}）</figcaption>
+      <figcaption className="small muted"><Inline text={img.credit} /><span className="nobr">（{img.license}）</span></figcaption>
     </figure>
   );
 }

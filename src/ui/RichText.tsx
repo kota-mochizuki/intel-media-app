@@ -1,21 +1,39 @@
 import { Fragment, type ReactNode } from 'react';
 import { phrases } from '../lib/phrases';
 
-/** 文節ごとに区切り、切れ目にだけ改行の候補（wbr）を置く */
-function Phrased({ text }: { text: string }) {
-  return <>{phrases(text).map((p, i) => <Fragment key={i}>{i > 0 && <wbr />}{p}</Fragment>)}</>;
+const NOWRAP_MAX = 20; // これより長い文節だけは、画面幅に収まらないことがあるので中で折り返しを許す
+const NUM = /(\d[\d.,:\-／/]*\d|\d+)/g; // 8.8、1,016、2027-10 などの数字
+
+/** 長い文節の中でも、数字の途中では改行しない */
+function KeepNumbers({ text }: { text: string }) {
+  return <>{text.split(NUM).map((s, i) => (i % 2 ? <span key={i} className="nobr">{s}</span> : <Fragment key={i}>{s}</Fragment>))}</>;
 }
 
-/** **太字** だけを解釈する（HTMLは解釈しない）。太字の語句は1行に収める */
+/** 文節ごとに「中で改行しない」箱に入れる。改行は文節と文節の間だけで起こる（どのブラウザでも同じ） */
+function Phrased({ text }: { text: string }) {
+  return (
+    <>
+      {phrases(text).map((p, i) => (
+        <Fragment key={i}>
+          {i > 0 && <wbr />}
+          {p.length <= NOWRAP_MAX ? <span className="ph">{p}</span> : <KeepNumbers text={p} />}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+/** **太字** だけを解釈する（HTMLは解釈しない） */
 export function Inline({ text }: { text: string }) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
   return (
     <>
-      {parts.map((p, i) => {
-        if (!/^\*\*[^*]+\*\*$/.test(p)) return <Fragment key={i}>{i > 0 && <wbr />}<Phrased text={p} /></Fragment>;
-        const inner = p.slice(2, -2);
-        return <Fragment key={i}>{i > 0 && <wbr />}<strong className={inner.length <= 16 ? 'nobr' : undefined}><Phrased text={inner} /></strong></Fragment>;
-      })}
+      {parts.map((p, i) => (
+        <Fragment key={i}>
+          {i > 0 && <wbr />}
+          {/^\*\*[^*]+\*\*$/.test(p) ? <strong><Phrased text={p.slice(2, -2)} /></strong> : <Phrased text={p} />}
+        </Fragment>
+      ))}
     </>
   );
 }
