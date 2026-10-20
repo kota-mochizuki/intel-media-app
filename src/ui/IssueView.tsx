@@ -6,7 +6,6 @@ import { setItem } from '../lib/feedback';
 import { useFeedback, type Status } from './useFeedback';
 import { Artwork, Figure } from './Figure';
 import { Inline, RichText } from './RichText';
-import { BriefCard, useBrief } from './BriefCard';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -28,7 +27,6 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
   const prevId = ids[ids.indexOf(id) + 1];
   const { issue: prev } = useIssue(prevId);
   const { fb, update, status } = useFeedback(id);
-  const brief = useBrief(id);
   const theme = themeOf(id);
 
   if (!issue) return error ? <section className="card welcome"><p>{error}</p></section> : <Skeleton />;
@@ -46,14 +44,6 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
           <SaveBadge status={status} />
         </div>
       </header>
-
-      {brief && (
-        <BriefCard brief={brief} fb={fb} onToggle={(i) => update((f) => {
-          const cur = new Set(f.brief?.done ?? []);
-          if (cur.has(i)) cur.delete(i); else cur.add(i);
-          return { ...f, brief: { done: [...cur].sort((a, b) => a - b) } };
-        })} />
-      )}
 
       {quiz && (
         <section className="card quiz-answer">
