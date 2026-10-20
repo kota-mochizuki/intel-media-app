@@ -17,6 +17,6 @@ export const monthLabel = (id: string) => `${id.slice(0, 4)}年${Number(id.slice
 /** 読了の目安（分）。日本語は1分あたり約500字で計算 */
 export function readMinutes(issue: Issue): number {
   const chars = (issue.note?.length ?? 0) + (issue.bonus?.body.length ?? 0) +
-    issue.items.reduce((n, it) => n + it.title.length + it.insight.text.length + it.summary.length + it.why.length + (it.action?.length ?? 0), 0);
+    issue.items.reduce((n, it) => n + it.title.length + it.insight.text.length + (it.points ?? []).join('').length + it.why.length + (it.action?.length ?? 0) + (it.points ? 0 : (it.summary ?? '').length), 0);
   return Math.max(1, Math.round(chars / 500));
 }

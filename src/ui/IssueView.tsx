@@ -5,6 +5,7 @@ import { formatDate, readMinutes, themeOf } from '../lib/dates';
 import { setItem } from '../lib/feedback';
 import { useFeedback, type Status } from './useFeedback';
 import { Artwork, Figure } from './Figure';
+import { Inline, RichText } from './RichText';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -101,17 +102,28 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
       <h2 className="title">{item.title}</h2>
       <div className="insight">
         <div className="insight-label">なるほど ・ {item.insight.type}</div>
-        <p>{item.insight.text}</p>
+        <p><Inline text={item.insight.text} /></p>
       </div>
-      {item.summary.split('\n').filter(Boolean).map((p, i) => <p key={i} className="body">{p}</p>)}
+      {item.points?.length ? (
+        <>
+          <h3 className="sec">要点</h3>
+          <ul className="points">{item.points.map((p, i) => <li key={i}><Inline text={p} /></li>)}</ul>
+        </>
+      ) : item.summary && <RichText text={item.summary} />}
       {item.figure && <Figure fig={item.figure} />}
-      <h3 className="sub">私にとっての重要性</h3>
-      <p className="body">{item.why}</p>
+      <h3 className="sec">私にとって</h3>
+      <RichText text={item.why} />
       {item.action && (
         <label className={`action ${fb.done ? 'is-done' : ''}`}>
           <input type="checkbox" checked={Boolean(fb.done)} onChange={(e) => onChange({ done: e.target.checked })} />
-          <span><b>必要な行動</b>　{item.action}</span>
+          <span><b>必要な行動</b>　<Inline text={item.action} /></span>
         </label>
+      )}
+      {item.detail && (
+        <details className="fold fold-detail">
+          <summary>くわしく</summary>
+          <div className="detail"><RichText text={item.detail} /></div>
+        </details>
       )}
       <details className="fold">
         <summary>出典（{item.sources.length}）</summary>

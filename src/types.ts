@@ -13,7 +13,8 @@ export type Figure =
 export interface BonusImage { url: string; alt: string; credit: string; license: string; page: string }
 
 export interface Item {
-  id: string; title: string; summary: string; why: string; action?: string;
+  id: string; title: string; why: string; action?: string;
+  points?: string[]; detail?: string; summary?: string; // summary は古い形式（points/detail 導入前）
   insight: Insight; polish: Polish[]; category: string; outside: boolean;
   sources: Source[]; recencyNote?: string; figure?: Figure;
 }
