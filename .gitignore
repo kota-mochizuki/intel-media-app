@@ -4,3 +4,4 @@ dist
 .DS_Store
 # 手元の動作確認用データ（個人の配信が入るので公開しない）
 public/demo/
+tsconfig.tsbuildinfo
