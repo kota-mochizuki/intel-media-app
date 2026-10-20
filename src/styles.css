@@ -209,3 +209,24 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .rt-list li { margin-bottom: 10px; }
 .compare li { margin-bottom: 8px; }
 .fold summary::-webkit-details-marker { display: none; }
+
+/* 秘書の朝の報告 */
+.brief { border-top: 4px solid var(--accent); }
+.brief-greet { font-size: 15px; color: var(--ink-2); }
+.signals { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 6px; }
+.signals li { font-size: 13.5px; line-height: 1.6; padding: 6px 10px; border-radius: 8px; }
+.sig-yellow { background: color-mix(in srgb, #e0a100 14%, transparent); }
+.sig-red { background: color-mix(in srgb, var(--warn) 16%, transparent); }
+.brief-today { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.brief-today label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 16px; font-weight: 600; line-height: 1.6; }
+.brief-today input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--accent); flex: none; }
+.brief-today .is-done > span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--muted); }
+.brief-why { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+.brief-list { margin: 0; padding-left: 1.2em; font-size: 15px; line-height: 1.7; }
+.brief-list li { margin-bottom: 6px; }
+.brief-list li::marker { color: var(--accent); }
+.horizon .hz { margin-top: 10px; }
+.hz-head { display: flex; gap: 10px; font-size: 15px; font-weight: 600; line-height: 1.6; }
+.hz-k { flex: none; min-width: 3.6em; font-size: 12.5px; font-weight: 800; color: var(--accent); padding-top: 2px; }
+.hz-detail { margin: 4px 0 0 calc(3.6em + 10px); font-size: 14px; color: var(--ink-2); line-height: 1.75; }
+.hz-line { min-width: 0; flex: 1; }

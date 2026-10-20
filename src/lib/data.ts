@@ -1,7 +1,7 @@
 // 配信の読み込みとフィードバックの保存。
 // データは非公開リポジトリ（intel-media-data）に置き、端末に保存したトークンで GitHub API から読み書きする。
 // ?demo を付けると、手元の public/demo/ を読む（公開版には含まれない）。
-import type { Feedback, Issue } from '../types';
+import type { Brief, Feedback, Issue } from '../types';
 import { emptyFeedback } from './feedback';
 import { fromB64, toB64 } from './b64';
 import * as store from './store';
@@ -59,6 +59,17 @@ export async function fetchIssue(id: string): Promise<Issue> {
   const issue = (await res.json()) as Issue;
   store.set(P + 'issue:' + id, issue);
   return issue;
+}
+
+// ---- 秘書の朝の報告（なければ null）----
+export const cachedBrief = (id: string) => store.get<Brief>(P + 'brief:' + id);
+export async function fetchBrief(id: string): Promise<Brief | null> {
+  const res = isDemo() ? await fetch(`./demo/briefs/${id}.json`, { cache: 'no-store' }) : await gh(`briefs/${id}.json`, {}, true);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new HttpError(res.status);
+  const b = (await res.json()) as Brief;
+  store.set(P + 'brief:' + id, b);
+  return b;
 }
 
 // ---- フィードバック ----

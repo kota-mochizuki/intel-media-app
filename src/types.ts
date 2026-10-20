@@ -21,5 +21,15 @@ export interface Item {
 export interface Bonus { type: string; body: string; answer?: string; image?: BonusImage; source?: { title: string; url: string; publisher: string } }
 export interface Issue { id: string; kind: 'daily' | 'deepdive' | 'digest'; note?: string; ask?: string; bonus?: Bonus; items: Item[] }
 
+// 秘書の朝の報告（intel-media-data の briefs/）
+export interface BriefTask { text: string; why?: string; due?: string }
+export interface BriefHorizon { line: string; detail?: string }
+export interface Brief {
+  id: string; greeting?: string;
+  today: BriefTask[]; week?: BriefTask[]; month?: BriefTask[];
+  signals?: { area: string; level: '黄' | '赤'; text: string }[];
+  horizon: { year: BriefHorizon; five: BriefHorizon; ten: BriefHorizon };
+}
+
 export interface ItemFeedback { star?: boolean; note?: string; done?: boolean }
-export interface Feedback { id: string; read: boolean; note?: string; answer?: string; items: Record<string, ItemFeedback>; updatedAt: string }
+export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: { done: number[] }; items: Record<string, ItemFeedback>; updatedAt: string }
