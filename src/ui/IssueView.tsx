@@ -48,12 +48,12 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
       {quiz && (
         <section className="card quiz-answer">
           <div className="label">前回のクイズの答え</div>
-          <p className="q">{quiz.body}</p>
-          <p className="a">{quiz.answer}</p>
+          <p className="q"><Inline text={quiz.body} /></p>
+          <p className="a"><Inline text={quiz.answer ?? ''} /></p>
         </section>
       )}
 
-      {issue.note && <p className="note">{issue.note}</p>}
+      {issue.note && <p className="note"><Inline text={issue.note} /></p>}
 
       {issue.items.map((it) => <ItemCard key={it.id} item={it} fb={fb.items[it.id] ?? {}} onChange={(p) => onItem(it.id, p)} />)}
 
@@ -61,7 +61,7 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
         <section className="card bonus">
           <div className="label">おまけ ・ {issue.bonus.type}</div>
           {issue.bonus.image && <Artwork img={issue.bonus.image} />}
-          <p>{issue.bonus.body}</p>
+          <p><Inline text={issue.bonus.body} /></p>
           {issue.bonus.answer && <p className="muted small">答えは次の配信で。</p>}
           {issue.bonus.source && <p className="small"><a href={issue.bonus.source.url} target="_blank" rel="noreferrer">{issue.bonus.source.title}</a>（{issue.bonus.source.publisher}）</p>}
         </section>
@@ -70,7 +70,7 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
       {issue.ask && (
         <section className="card ask">
           <div className="label">確認したいこと</div>
-          <p>{issue.ask}</p>
+          <p><Inline text={issue.ask} /></p>
           <textarea rows={3} placeholder="一言で大丈夫です" value={fb.answer ?? ''} onChange={(e) => update((f) => ({ ...f, answer: e.target.value }))} />
         </section>
       )}
@@ -99,7 +99,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
         <span className="chip">{CATEGORY[item.category] ?? item.category}</span>
         {item.outside && <span className="chip chip-outside">外側</span>}
       </div>
-      <h2 className="title">{item.title}</h2>
+      <h2 className="title"><Inline text={item.title} /></h2>
       <div className="insight">
         <div className="insight-label">なるほど ・ {item.insight.type}</div>
         <p><Inline text={item.insight.text} /></p>
@@ -128,7 +128,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
       <details className="fold">
         <summary>出典（{item.sources.length}）</summary>
         <ul className="sources">
-          {item.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a><span className="muted">（{s.publisher}、{s.published}）</span></li>)}
+          {item.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a><span className="muted">（{s.publisher}、<span className="nobr">{s.published}</span>）</span></li>)}
         </ul>
         {item.recencyNote && <p className="small muted">古い出典を使う理由：{item.recencyNote}</p>}
       </details>

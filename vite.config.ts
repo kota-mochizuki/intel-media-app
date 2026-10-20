@@ -1,9 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'node:url';
+
+// BudouX は本体から読むと中国語・タイ語のモデルまで入るので、文節分けと日本語モデルだけを直接読む
+const bx = (f: string) => fileURLToPath(new URL(`./node_modules/budoux/module/${f}`, import.meta.url));
 
 export default defineConfig({
   base: './',
+  resolve: { alias: { 'budoux-lite/parser': bx('parser.js'), 'budoux-lite/ja': bx('data/models/ja.js') } },
   plugins: [
     react(),
     VitePWA({

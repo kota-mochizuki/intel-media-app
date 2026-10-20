@@ -43,3 +43,27 @@ describe('b64', () => {
     expect(fromB64(toB64(s))).toBe(s);
   });
 });
+
+import { phrases } from './phrases';
+describe('phrases', () => {
+  it('文節に分け、つなげると元に戻る。助詞は前の語に付く', () => {
+    const t = '相談で「年収いくらまでなら」と聞くやり方は、もう古い。';
+    const ps = phrases(t);
+    expect(ps.join('')).toBe(t);
+    expect(ps.length).toBeGreaterThan(3);
+    expect(ps).toContain('やり方は、');
+  });
+  it('句読点やコロンで行が始まらない・1文字だけの文節を作らない', () => {
+    for (const t of ['早く落ちる：運ぶ力', '1回に送り出す血液量：早期に低下し、運動習慣のない人と同じ水準に']) {
+      const ps = phrases(t);
+      expect(ps.join('')).toBe(t);
+      for (const x of ps) { expect(x).not.toMatch(/^[、。：）」]/); expect(x.length).toBeGreaterThan(1); }
+    }
+    expect(phrases('1回に送り出す血液量：早期に低下し')).toContain('早期に');
+  });
+  it('短いかぎ括弧の中は分けない', () => {
+    const ps = phrases('相談のヒアリング項目に「週の所定労働時間」と「勤め先の従業員数」を足す。');
+    expect(ps.some((x) => x.includes('「週の所定労働時間」'))).toBe(true);
+    expect(ps.some((x) => x.includes('「勤め先の従業員数」'))).toBe(true);
+  });
+});

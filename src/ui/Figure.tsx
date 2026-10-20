@@ -1,4 +1,5 @@
 import type { BonusImage, Figure as F } from '../types';
+import { Inline } from './RichText';
 
 const fmt = (v: number) => (Number.isInteger(v) ? v.toLocaleString('ja-JP') : v.toLocaleString('ja-JP', { maximumFractionDigits: 2 }));
 
@@ -6,14 +7,14 @@ const fmt = (v: number) => (Number.isInteger(v) ? v.toLocaleString('ja-JP') : v.
 export function Figure({ fig }: { fig: F }) {
   return (
     <figure className={`fig fig-${fig.type}`}>
-      <figcaption className="fig-title">{fig.title}</figcaption>
+      <figcaption className="fig-title"><Inline text={fig.title} /></figcaption>
       {fig.type === 'bars' && <Bars fig={fig} />}
       {fig.type === 'flow' && (
         <ol className="flow">
           {fig.steps.map((s, i) => (
             <li key={i} className="flow-step">
-              <span className="flow-label">{s.label}</span>
-              {s.detail && <span className="flow-detail">{s.detail}</span>}
+              <span className="flow-label"><Inline text={s.label} /></span>
+              {s.detail && <span className="flow-detail"><Inline text={s.detail} /></span>}
             </li>
           ))}
         </ol>
@@ -22,19 +23,19 @@ export function Figure({ fig }: { fig: F }) {
         <div className="compare" style={{ gridTemplateColumns: `repeat(${fig.columns.length}, minmax(0, 1fr))` }}>
           {fig.columns.map((c, i) => (
             <div key={i} className="compare-col">
-              <div className="compare-head">{c.heading}</div>
-              <ul>{c.points.map((p, j) => <li key={j}>{p}</li>)}</ul>
+              <div className="compare-head"><Inline text={c.heading} /></div>
+              <ul>{c.points.map((p, j) => <li key={j}><Inline text={p} /></li>)}</ul>
             </div>
           ))}
         </div>
       )}
       {fig.type === 'timeline' && (
         <ol className="timeline">
-          {fig.events.map((e, i) => <li key={i}><span className="tl-date">{e.date}</span><span className="tl-label">{e.label}</span></li>)}
+          {fig.events.map((e, i) => <li key={i}><span className="tl-date">{e.date}</span><span className="tl-label"><Inline text={e.label} /></span></li>)}
         </ol>
       )}
-      {fig.note && <p className="fig-note">{fig.note}</p>}
-      <p className="fig-source">出典：<a href={fig.source.url} target="_blank" rel="noreferrer">{fig.source.publisher}</a>（{fig.source.published}）</p>
+      {fig.note && <p className="fig-note"><Inline text={fig.note} /></p>}
+      <p className="fig-source">出典：<a href={fig.source.url} target="_blank" rel="noreferrer">{fig.source.publisher}</a><span className="nobr">（{fig.source.published}）</span></p>
     </figure>
   );
 }
