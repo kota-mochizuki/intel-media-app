@@ -93,3 +93,14 @@ describe('checklist', () => {
     expect(nextItems(c, { '4': true }, 3).map((i) => i.id)).toEqual(['2', '1', '3']);
   });
 });
+
+describe('秘書の報告：チェックと持ち越し', () => {
+  it('チェックを切り替えても持ち越しの一言は消えない', async () => {
+    const { toggleBriefDone, setBriefCarry } = await import('../ui/BriefCard');
+    let f = setBriefCarry(emptyFeedback('2026-10-21'), '紹介表に1行');
+    f = toggleBriefDone(f, 1);
+    expect(f.brief).toEqual({ done: [1], carry: '紹介表に1行' });
+    f = toggleBriefDone(f, 1);
+    expect(f.brief).toEqual({ done: [], carry: '紹介表に1行' });
+  });
+});

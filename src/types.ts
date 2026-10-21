@@ -32,7 +32,7 @@ export interface Brief {
 }
 
 export interface ItemFeedback { star?: boolean; note?: string; done?: boolean }
-export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: { done: number[] }; items: Record<string, ItemFeedback>; updatedAt: string }
+export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: { done: number[]; carry?: string }; items: Record<string, ItemFeedback>; updatedAt: string }
 
 // やることリスト（intel-media-data の lists/ と checks/）
 export interface ListItem { id: string; text: string; who: string; due?: string; note?: string; source?: { title: string; url: string; publisher: string } }

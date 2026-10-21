@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { cachedBriefIds, fetchBriefIds } from '../lib/data';
 import { formatDate, todayJst } from '../lib/dates';
-import { BriefCard, useBrief } from './BriefCard';
+import { BriefCard, setBriefCarry, toggleBriefDone, useBrief } from './BriefCard';
 import { useFeedback } from './useFeedback';
 import { ChecklistCards } from './ChecklistCard';
 
@@ -57,10 +57,6 @@ function BriefOf({ id }: { id: string }) {
   const { fb, update } = useFeedback(id);
   if (!brief) return <div className="sk sk-card" />;
   return (
-    <BriefCard brief={brief} fb={fb} onToggle={(i) => update((f) => {
-      const cur = new Set(f.brief?.done ?? []);
-      if (cur.has(i)) cur.delete(i); else cur.add(i);
-      return { ...f, brief: { done: [...cur].sort((a, b) => a - b) } };
-    })} />
+    <BriefCard brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} onCarry={(s) => update((f) => setBriefCarry(f, s))} />
   );
 }

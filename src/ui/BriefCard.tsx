@@ -19,10 +19,24 @@ function Tasks({ tasks }: { tasks: BriefTask[] }) {
   return <ul className="brief-list">{tasks.map((t, i) => <li key={i}><Inline text={t.text} /><span className="muted small">{dueLabel(t.due)}</span></li>)}</ul>;
 }
 
-/** 秘書の朝の報告。今日やることはチェックでき、翌朝の秘書が読む */
-export function BriefCard({ brief, fb, onToggle }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void }) {
+/** 今日やることのチェックを切り替える（持ち越しの一言は残す） */
+export const toggleBriefDone = (f: Feedback, i: number): Feedback => {
+  const cur = new Set(f.brief?.done ?? []);
+  if (cur.has(i)) cur.delete(i); else cur.add(i);
+  return { ...f, brief: { ...f.brief, done: [...cur].sort((a, b) => a - b) } };
+};
+export const setBriefCarry = (f: Feedback, carry: string): Feedback => ({ ...f, brief: { done: f.brief?.done ?? [], carry } });
+
+/** 秘書の朝の報告。今日やることはチェックでき、翌朝の秘書が読む。compact は「今日」画面の上に置く短い版 */
+export function BriefCard({ brief, fb, onToggle, onCarry, compact }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void; onCarry: (s: string) => void; compact?: boolean }) {
   const done = new Set(fb.brief?.done ?? []);
   const h = brief.horizon;
+  const later = (
+    <>
+      {brief.week?.length ? <><h3 className="sec">今週</h3><Tasks tasks={brief.week} /></> : null}
+      {brief.month?.length ? <><h3 className="sec">今月</h3><Tasks tasks={brief.month} /></> : null}
+    </>
+  );
   return (
     <section className="card brief">
       <div className="label">秘書から</div>
@@ -41,8 +55,11 @@ export function BriefCard({ brief, fb, onToggle }: { brief: Brief; fb: Feedback;
           </li>
         ))}
       </ul>
-      {brief.week?.length ? <><h3 className="sec">今週</h3><Tasks tasks={brief.week} /></> : null}
-      {brief.month?.length ? <><h3 className="sec">今月</h3><Tasks tasks={brief.month} /></> : null}
+      <label className="carry">
+        <span className="muted small">夜の一言：明日に持ち越すこと（なければ空で）</span>
+        <textarea rows={2} value={fb.brief?.carry ?? ''} onChange={(e) => onCarry(e.target.value)} />
+      </label>
+      {compact ? <details className="fold"><summary>今週・今月</summary>{later}</details> : later}
       <details className="fold horizon">
         <summary>この先の見通し（1年・5年・10年）</summary>
         {([['1年', h.year], ['5年後', h.five], ['10年後', h.ten]] as const).map(([k, v]) => (
