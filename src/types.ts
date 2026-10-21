@@ -40,7 +40,14 @@ export interface Feedback { id: string; read: boolean; note?: string; answer?: s
 export interface ListItem { id: string; text: string; who: string; due?: string; note?: string; source?: { title: string; url: string; publisher: string } }
 export interface ListSection { id: string; title: string; items: ListItem[] }
 export interface Checklist { id: string; title: string; target?: string; intro?: string; sections: ListSection[] }
-export interface ChecksState { id: string; done: Record<string, boolean>; updatedAt: string }
+export interface ChecksState { id: string; done: Record<string, boolean>; updatedAt: string; scores?: Record<string, StudyScore>; seeds?: Record<string, StudySeed>; mocks?: Record<string, StudyScore[]> }
+
+// 紙の過去問（intel-media-data の study/ と checks/study.json）
+export interface StudyScore { c: number; n: number; d: string }
+export interface StudySeed extends StudyScore { upTo: number; note?: string }
+export interface StudyItem { no: number; part: string; topic: string; level: string; years: string; first: number; stars: number[] }
+export interface StudyBook { id: string; subject: string; name: string; title: string; mock: { total: number }; items: StudyItem[] }
+export interface StudyIndex { books: string[]; order: string[]; dailyTarget: number }
 
 // FP辞書（intel-media-data の wiki/）
 export interface WikiPickup { type: 'タイムリー' | 'お客様に喜ばれる'; title: string; text?: string; date?: string; source?: { title: string; url: string; publisher: string } }

@@ -9,6 +9,7 @@ import { Inline, RichText } from './RichText';
 import { BriefCard, toggleBriefDone, useBrief } from './BriefCard';
 import { ChecklistCards } from './ChecklistCard';
 import { WikiMorningCard, useWikiIndex } from './WikiView';
+import { StudyCard } from './StudyCard';
 import { newToday } from '../lib/wiki';
 import { todayJst } from '../lib/dates';
 
@@ -54,6 +55,7 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
       </header>
 
       {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} />}
+      {isToday && <StudyCard />}
       {isToday && <ChecklistCards compact />}
       {isToday && <WikiMorningCard items={newToday(wiki, todayJst())} />}
 

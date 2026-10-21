@@ -4,6 +4,7 @@ import { lastDays, questionsFor, tally } from '../lib/night';
 import { setBrief, useBrief } from './BriefCard';
 import { Inline } from './RichText';
 import { useFeedback } from './useFeedback';
+import { StudyCard } from './StudyCard';
 
 const WD = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -30,6 +31,7 @@ export function NightView() {
         <div className="masthead-row"><span className="theme">1日の振り返り</span><span className="muted">1分</span></div>
       </header>
       {brief?.evening && <p className="night-note"><Inline text={brief.evening} /></p>}
+      <StudyCard day={id} />
       <section className="card night">
         <p className="muted small">直感で答えてください。正解はありません。</p>
         <ul className="nq">

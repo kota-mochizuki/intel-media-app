@@ -1,7 +1,7 @@
 // 配信の読み込みとフィードバックの保存。
 // データは非公開リポジトリ（intel-media-data）に置き、端末に保存したトークンで GitHub API から読み書きする。
 // ?demo を付けると、手元の public/demo/ を読む（公開版には含まれない）。
-import type { Brief, Checklist, ChecksState, Feedback, Issue, WikiEntry, WikiIndexItem } from '../types';
+import type { Brief, Checklist, ChecksState, Feedback, Issue, StudyBook, StudyIndex, WikiEntry, WikiIndexItem } from '../types';
 import { emptyFeedback } from './feedback';
 import { fromB64, toB64 } from './b64';
 import * as store from './store';
@@ -221,4 +221,19 @@ export async function fetchWikiEntry(id: string): Promise<WikiEntry> {
   const e = (await res.json()) as WikiEntry;
   store.set(P + 'wiki:' + id, e);
   return e;
+}
+
+// ---- 紙の過去問（study/）----
+export const cachedStudy = () => store.get<{ index: StudyIndex; books: StudyBook[] }>(P + 'study');
+export async function fetchStudy(): Promise<{ index: StudyIndex; books: StudyBook[] }> {
+  const get = async (path: string) => {
+    const res = isDemo() ? await fetch(`./demo/${path}`, { cache: 'no-store' }) : await gh(path, {}, true);
+    if (!res.ok) throw new HttpError(res.status);
+    return res.json();
+  };
+  const index = (await get('study/index.json')) as StudyIndex;
+  const books = (await Promise.all(index.books.map((b) => get(`study/${b}.json`)))) as StudyBook[];
+  const v = { index, books };
+  store.set(P + 'study', v);
+  return v;
 }

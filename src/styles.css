@@ -314,3 +314,11 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .wiki-nums li { display: grid; gap: 2px; }
 .pickup { border-color: var(--accent); }
 .pickup h3 { margin: 0 0 6px; font-size: 16.5px; }
+.study-list { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 12px; }
+.study-q { font-size: 14.5px; line-height: 1.55; margin-bottom: 4px; }
+.study-btns { display: flex; align-items: center; gap: 6px; }
+.study-btns button { min-width: 34px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-2); font: inherit; font-size: 15px; cursor: pointer; }
+.study-btns button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.study-topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14.5px; }
+.study-topics li { display: flex; justify-content: space-between; gap: 8px; }
+.study-topics li.review span:last-child { color: var(--warn); font-weight: 700; }

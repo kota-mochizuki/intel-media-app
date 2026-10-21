@@ -144,3 +144,30 @@ describe('FP辞書', () => {
   });
   it('今朝の項目は作成日が今日のもの', () => expect(newToday(list, '2026-10-22').map((e) => e.id)).toEqual(['risk.L10.M02']));
 });
+
+import { byTopic, currentBook, progress as studyProgress, todaySet } from './study';
+import type { ChecksState, StudyBook } from '../types';
+describe('紙の過去問', () => {
+  const book: StudyBook = { id: 'risk', subject: 'risk', name: 'リスク', title: '', mock: { total: 50 }, items: [
+    { no: 1, part: '', topic: 'A', level: '基', years: '', first: 1, stars: [1, 1] },
+    { no: 2, part: '', topic: 'B', level: '基', years: '', first: 3, stars: [3, 3, 3] },
+    { no: 3, part: '', topic: 'B', level: '中', years: '', first: 6, stars: [1, 1] },
+    { no: 4, part: '', topic: 'C', level: '中', years: '', first: 8, stars: [2, 2, 2] },
+  ] };
+  const st = (x: Partial<ChecksState> = {}): ChecksState => ({ id: 'study', done: {}, updatedAt: '', ...x });
+  it('今日の範囲は、申告済みのあとから目安の設問数まで（大問は切らない）', () => {
+    expect(todaySet(book, st({ seeds: { risk: { upTo: 1, c: 2, n: 2, d: '' } } }), '2026-10-22', 4).map((i) => i.no)).toEqual([2, 3]);
+  });
+  it('今日記録した大問は、範囲に残る', () => {
+    const s = st({ seeds: { risk: { upTo: 1, c: 2, n: 2, d: '' } }, scores: { 'risk-2': { c: 2, n: 3, d: '2026-10-22' } } });
+    expect(todaySet(book, s, '2026-10-22', 4).map((i) => i.no)).toEqual([2, 3]);
+    expect(todaySet(book, s, '2026-10-23', 4).map((i) => i.no)).toEqual([3, 4]);
+  });
+  it('進み具合と分野別（70%未満は復習）', () => {
+    const s = st({ seeds: { risk: { upTo: 1, c: 1, n: 2, d: '' } }, scores: { 'risk-2': { c: 3, n: 3, d: 'x' }, 'risk-3': { c: 0, n: 2, d: 'x' }, 'risk-4': { c: 3, n: 3, d: 'x' } } });
+    expect(studyProgress(book, s)).toEqual({ total: 10, done: 10, c: 7 });
+    const t = byTopic(book, s);
+    expect(t[0]).toMatchObject({ topic: 'B', c: 3, n: 5, review: true });
+    expect(currentBook([book], ['risk'], s)).toBeNull();
+  });
+});

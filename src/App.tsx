@@ -6,15 +6,16 @@ import { Past } from './ui/Past';
 import { Settings } from './ui/Settings';
 import { WikiEntryView, WikiView } from './ui/WikiView';
 import { NightView } from './ui/NightView';
+import { StudyView } from './ui/StudyCard';
 
-type Route = { tab: 'today' } | { tab: 'night' } | { tab: 'wiki' } | { tab: 'wikiEntry'; id: string } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
+type Route = { tab: 'today' } | { tab: 'study' } | { tab: 'night' } | { tab: 'wiki' } | { tab: 'wikiEntry'; id: string } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
 const parse = (): Route => {
   const h = location.hash.replace(/^#\/?/, '');
   const m = h.match(/^issue\/(\d{4}-\d{2}-\d{2})$/);
   if (m) return { tab: 'issue', id: m[1] };
   const w = h.match(/^wiki\/([\w.]+)$/);
   if (w) return { tab: 'wikiEntry', id: w[1] };
-  return h === 'night' ? { tab: 'night' } : h === 'wiki' ? { tab: 'wiki' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
+  return h === 'study' ? { tab: 'study' } : h === 'night' ? { tab: 'night' } : h === 'wiki' ? { tab: 'wiki' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
 };
 
 export function App() {
@@ -45,12 +46,13 @@ export function App() {
   // 「今日」は、今日以前でいちばん新しい配信
   const today = todayJst();
   const latest = ids.find((id) => id <= today) ?? ids[0];
-  const tab = route.tab === 'issue' || route.tab === 'past' ? 'today' : route.tab === 'wikiEntry' ? 'wiki' : route.tab; // 過去の配信は朝の画面の下から開く
+  const tab = route.tab === 'issue' || route.tab === 'past' || route.tab === 'study' ? 'today' : route.tab === 'wikiEntry' ? 'wiki' : route.tab; // 過去の配信は朝の画面の下から開く
 
   let body;
   if (route.tab === 'settings') body = <Settings onSaved={() => { setConfigured(isConfigured()); }} />;
   else if (!configured) body = <Welcome />;
   else if (route.tab === 'night') body = <NightView />;
+  else if (route.tab === 'study') body = <StudyView />;
   else if (route.tab === 'wiki') body = <WikiView />;
   else if (route.tab === 'wikiEntry') body = <WikiEntryView key={route.id} id={route.id} />;
   else if (route.tab === 'past') body = <Past ids={ids} />;
