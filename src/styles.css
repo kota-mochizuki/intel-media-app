@@ -325,6 +325,6 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .loop { font-size: 12.5px; font-weight: 800; letter-spacing: .12em; color: var(--muted); margin: 22px 4px 8px; }
 .use h3 { margin: 0 0 6px; font-size: 16.5px; }
 .use-msg { white-space: pre-wrap; background: var(--soft); border-radius: 10px; padding: 10px 12px; font-size: 14.5px; line-height: 1.7; margin: 8px 0 4px; }
-.nq-group { font-size: 12.5px; font-weight: 800; letter-spacing: .1em; color: var(--muted); margin: 6px 0 -4px; }
+.nq-from { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
 .mock-input { display: flex; align-items: center; gap: 6px; margin: 4px 0 8px; }
 .mock-input input { width: 4em; font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; }

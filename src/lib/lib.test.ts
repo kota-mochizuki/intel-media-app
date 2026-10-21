@@ -99,10 +99,10 @@ describe('秘書の報告：チェックと持ち越し', () => {
     const { toggleBriefDone, setBrief } = await import('../ui/BriefCard');
     let f = setBrief(emptyFeedback('2026-10-21'), { memo: 'サウナで整った' });
     f = toggleBriefDone(f, 1);
-    f = setBrief(f, { q: { cfp: true, yohaku: false } });
-    expect(f.brief).toEqual({ done: [1], memo: 'サウナで整った', q: { cfp: true, yohaku: false } });
+    f = setBrief(f, { q: { lead: true, help: false } });
+    expect(f.brief).toEqual({ done: [1], memo: 'サウナで整った', q: { lead: true, help: false } });
     f = toggleBriefDone(f, 1);
-    expect(f.brief).toEqual({ done: [], memo: 'サウナで整った', q: { cfp: true, yohaku: false } });
+    expect(f.brief).toEqual({ done: [], memo: 'サウナで整った', q: { lead: true, help: false } });
   });
 });
 
@@ -119,15 +119,13 @@ import { lastDays, questionsFor, tally } from './night';
 describe('夜の振り返りの集計', () => {
   it('直近7日と、問いごとのできた数', () => {
     expect(lastDays('2026-10-21', 3)).toEqual(['2026-10-21', '2026-10-20', '2026-10-19']);
-    const t = tally([{ cfp: true, knee: false }, undefined, { cfp: false }]);
-    expect(t.cfp).toEqual({ yes: 1, answered: 2 });
-    expect(t.knee).toEqual({ yes: 0, answered: 1 });
-    expect(t.yohaku).toEqual({ yes: 0, answered: 0 });
+    const t = tally([{ lead: true, help: false }, undefined, { lead: false }]);
+    expect(t.lead).toEqual({ yes: 1, answered: 2 });
+    expect(t.help).toEqual({ yes: 0, answered: 1 });
+    expect(t.absorb).toEqual({ yes: 0, answered: 0 });
   });
-  it('入籍の問いは入籍日まで', () => {
-    expect(questionsFor('2026-11-22').some((x) => x.id === 'nyuseki')).toBe(true);
-    expect(questionsFor('2026-11-23').some((x) => x.id === 'nyuseki')).toBe(false);
-  });
+  it('問いは5つ（期限なし）', () => expect(questionsFor('2026-12-01').map((x) => x.id)).toEqual(['lead', 'sincere', 'help', 'absorb', 'noregret']));
+
 });
 
 import { newToday, searchWiki } from './wiki';

@@ -31,17 +31,16 @@ export function NightView() {
         <div className="masthead-row"><span className="theme">1日の振り返り</span><span className="muted">1分</span></div>
       </header>
       {brief?.evening && <p className="night-note"><Inline text={brief.evening} /></p>}
-      <StudyCard day={id} />
+      <StudyCard day={id} onlyIfOpen />
       <section className="card night">
         <p className="muted small">直感で答えてください。正解はありません。</p>
         <ul className="nq">
-          {qs.map((x, i) => (
+          {qs.map((x) => (
             <li key={x.id}>
-              {(i === 0 || qs[i - 1].group !== x.group) && <div className="nq-group">{x.group}</div>}
-              <div className="nq-text">{x.text}</div>
+              <div className="nq-text">{x.text}<span className="nq-from">{x.from}</span></div>
               <div className="seg" role="group" aria-label={x.text}>
-                <button className={q[x.id] === true ? 'on' : ''} onClick={() => answer(x.id, true)}>できた</button>
-                <button className={q[x.id] === false ? 'on off' : ''} onClick={() => answer(x.id, false)}>できなかった</button>
+                <button className={q[x.id] === true ? 'on' : ''} onClick={() => answer(x.id, true)}>はい</button>
+                <button className={q[x.id] === false ? 'on off' : ''} onClick={() => answer(x.id, false)}>いいえ</button>
               </div>
             </li>
           ))}
@@ -63,7 +62,7 @@ export function NightView() {
             ))}
           </tbody>
         </table>
-        <p className="muted small">●できた ○できなかった。書いた内容は、明日の朝の秘書が読みます。おやすみなさい。</p>
+        <p className="muted small">●はい ○いいえ。書いた内容は、明日の朝の秘書が読みます。おやすみなさい。</p>
       </section>
     </div>
   );

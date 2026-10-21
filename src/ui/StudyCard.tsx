@@ -7,7 +7,8 @@ import { useStudy } from './useStudy';
 const stars = (s: number[]) => '★'.repeat(Math.max(...s, 0));
 
 /** 今日の過去問（朝・夜の画面）。解いたら大問ごとに正答数を押すだけ */
-export function StudyCard({ day = todayJst() }: { day?: string }) {
+/** onlyIfOpen：夜の画面用。今日の分がすべて記録済みなら出さない（朝できなかった日だけ出す） */
+export function StudyCard({ day = todayJst(), onlyIfOpen }: { day?: string; onlyIfOpen?: boolean }) {
   const { data, st, setScore } = useStudy();
   if (!data) return null;
   const book = currentBook(data.books, data.index.order, st);
@@ -16,6 +17,8 @@ export function StudyCard({ day = todayJst() }: { day?: string }) {
   const until = book ? data.index.until?.[book.id] : undefined;
   const set = book ? todaySet(book, st, day, dailyTarget(book, st, day, until, data.index.dailyTarget)) : [];
   const n = set.reduce((s, it) => s + it.stars.length, 0) + reviews.reduce((s, r) => s + r.item.stars.length, 0);
+  const open = (book ? set.some((it) => !st.scores?.[scoreKey(book.id, it.no)]) : false) || reviews.some((r) => !st.scores?.[reviewKey(r.book.id, r.item.no, r.round)]);
+  if (onlyIfOpen && !open) return null;
   const row = (k: string, it: StudyItem, label: string) => {
     const sc = st.scores?.[k];
     return (
@@ -32,7 +35,7 @@ export function StudyCard({ day = todayJst() }: { day?: string }) {
   };
   return (
     <section className="card study">
-      <div className="cl-head"><b>今日の過去問{book ? `：${book.name}` : ''}</b><span className="muted small">{n}設問・目安{Math.round(n * 3)}分</span></div>
+      <div className="cl-head"><b>{onlyIfOpen ? 'まだの過去問' : '今日の過去問'}{book ? `：${book.name}` : ''}</b><span className="muted small">{n}設問・目安{Math.round(n * 3)}分</span></div>
       {book && <p className="muted small">{rangeLabel(set)}{until ? `・${Number(until.slice(5, 7))}/${Number(until.slice(8, 10))}までに1周` : ''}</p>}
       <p className="muted small">解いたら、大問ごとに<b>正解した設問の数</b>を押す（選んだ番号ではありません）</p>
       {book && <ul className="study-list">{set.map((it) => row(scoreKey(book.id, it.no), it, `問${it.no}`))}</ul>}
