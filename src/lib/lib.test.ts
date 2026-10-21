@@ -171,3 +171,17 @@ describe('紙の過去問', () => {
     expect(currentBook([book], ['risk'], s)).toBeNull();
   });
 });
+
+import { dailyTarget } from './study';
+describe('1日の目安', () => {
+  const book: StudyBook = { id: 'risk', subject: 'risk', name: '', title: '', mock: { total: 50 }, items: [
+    { no: 1, part: '', topic: 'A', level: '', years: '', first: 1, stars: [1, 1, 1, 1, 1] },
+    { no: 2, part: '', topic: 'B', level: '', years: '', first: 6, stars: [1, 1, 1, 1, 1] },
+  ] };
+  const st: ChecksState = { id: 'study', done: {}, updatedAt: '', scores: { 'risk-1': { c: 5, n: 5, d: '2026-10-30' } } };
+  it('締切まで日割り、今日の記録で目安が変わらない', () => {
+    expect(dailyTarget(book, st, '2026-10-30', '2026-10-31', 20)).toBe(5); // 残り10設問÷2日
+    expect(dailyTarget(book, st, '2026-10-31', '2026-10-31', 20)).toBe(5);
+    expect(dailyTarget(book, st, '2026-11-01', '2026-10-31', 20)).toBe(20);
+  });
+});

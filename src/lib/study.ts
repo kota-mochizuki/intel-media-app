@@ -49,3 +49,11 @@ export function byTopic(book: StudyBook, st: ChecksState) {
   return [...m.values()].map((r) => ({ ...r, rate: r.n ? r.c / r.n : 0, review: r.n > 0 && r.c / r.n < 0.7 }))
     .sort((a, b) => Number(b.review) - Number(a.review) || a.rate - b.rate || b.stars - a.stars);
 }
+
+/** 1日の目安の設問数：締切（その本の until）までに、残りを日割り。今日記録した分は「残り」に戻して計算する（1日の中で目安が変わらないように）。締切がない・過ぎたら既定値 */
+export function dailyTarget(book: StudyBook, st: ChecksState, today: string, until: string | undefined, fallback: number): number {
+  if (!until || today > until) return fallback;
+  const days = Math.round((Date.parse(until) - Date.parse(today)) / 86_400_000) + 1;
+  const left = book.items.filter((it) => !isDone(st, book, it) || st.scores?.[scoreKey(book.id, it.no)]?.d === today).reduce((s, it) => s + it.stars.length, 0);
+  return Math.max(1, Math.ceil(left / days));
+}

@@ -1,5 +1,5 @@
 import { todayJst } from '../lib/dates';
-import { byTopic, currentBook, progress, rangeLabel, scoreKey, todaySet } from '../lib/study';
+import { byTopic, currentBook, dailyTarget, progress, rangeLabel, scoreKey, todaySet } from '../lib/study';
 import { useStudy } from './useStudy';
 
 const stars = (s: number[]) => '★'.repeat(Math.max(...s, 0));
@@ -10,13 +10,15 @@ export function StudyCard({ day = todayJst() }: { day?: string }) {
   if (!data) return null;
   const book = currentBook(data.books, data.index.order, st);
   if (!book) return null;
-  const set = todaySet(book, st, day, data.index.dailyTarget);
+  const until = data.index.until?.[book.id];
+  const set = todaySet(book, st, day, dailyTarget(book, st, day, until, data.index.dailyTarget));
   const n = set.reduce((s, it) => s + it.stars.length, 0);
   const rec = set.filter((it) => st.scores?.[scoreKey(book.id, it.no)]);
   return (
     <section className="card study">
       <div className="cl-head"><b>今日の過去問：{book.name}</b><span className="muted small">{rec.length}/{set.length}</span></div>
-      <p className="muted small">{rangeLabel(set)}・{n}設問・目安{Math.round(n * 3)}分</p>
+      <p className="muted small">{rangeLabel(set)}・{n}設問・目安{Math.round(n * 3)}分{until ? `・${Number(until.slice(5, 7))}/${Number(until.slice(8, 10))}までに1周` : ''}</p>
+      <p className="muted small">解いたら、大問ごとに<b>正解した設問の数</b>を押す（選んだ番号ではありません）</p>
       <ul className="study-list">
         {set.map((it) => {
           const k = scoreKey(book.id, it.no), sc = st.scores?.[k];

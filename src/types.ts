@@ -47,7 +47,7 @@ export interface StudyScore { c: number; n: number; d: string }
 export interface StudySeed extends StudyScore { upTo: number; note?: string }
 export interface StudyItem { no: number; part: string; topic: string; level: string; years: string; first: number; stars: number[] }
 export interface StudyBook { id: string; subject: string; name: string; title: string; mock: { total: number }; items: StudyItem[] }
-export interface StudyIndex { books: string[]; order: string[]; dailyTarget: number }
+export interface StudyIndex { books: string[]; order: string[]; dailyTarget: number; until?: Record<string, string> }
 
 // FP辞書（intel-media-data の wiki/）
 export interface WikiPickup { type: 'タイムリー' | 'お客様に喜ばれる'; title: string; text?: string; date?: string; source?: { title: string; url: string; publisher: string } }
