@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Brief, BriefFeedback, BriefTask, Feedback } from '../types';
 import { cachedBrief, fetchBrief } from '../lib/data';
 import { Inline } from './RichText';
+import { NIGHT_QUESTIONS } from '../lib/night';
 
 export function useBrief(id: string) {
   const [brief, setBrief] = useState<Brief | null>(() => cachedBrief(id));
@@ -73,13 +74,13 @@ export function BriefCard({ brief, fb, onToggle, compact }: { brief: Brief; fb: 
 
 /** 過去の日に、その夜の振り返りを読み返す（書き換えは「夜」タブから） */
 function Reflection({ fb }: { fb?: BriefFeedback }) {
-  if (!fb?.good && !fb?.carry && fb?.yohaku === undefined) return null;
+  const answered = NIGHT_QUESTIONS.filter((x) => fb?.q?.[x.id] !== undefined);
+  if (!answered.length && !fb?.memo) return null;
   return (
     <div className="reflect-past small">
       <div className="muted">その夜の振り返り</div>
-      {fb.yohaku !== undefined && <div>余白の時間：{fb.yohaku ? 'とれた' : 'とれなかった'}</div>}
-      {fb.good && <div>よかったこと：{fb.good}</div>}
-      {fb.carry && <div>持ち越し：{fb.carry}</div>}
+      {answered.length > 0 && <div>{answered.map((x) => `${fb!.q![x.id] ? '●' : '○'}${x.short}`).join('　')}</div>}
+      {fb?.memo && <div>{fb.memo}</div>}
     </div>
   );
 }

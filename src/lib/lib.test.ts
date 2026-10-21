@@ -95,14 +95,14 @@ describe('checklist', () => {
 });
 
 describe('秘書の報告：チェックと持ち越し', () => {
-  it('チェックを切り替えても持ち越しの一言は消えない', async () => {
+  it('チェックを切り替えても夜の振り返りは消えない', async () => {
     const { toggleBriefDone, setBrief } = await import('../ui/BriefCard');
-    let f = setBrief(emptyFeedback('2026-10-21'), { carry: '紹介表に1行' });
+    let f = setBrief(emptyFeedback('2026-10-21'), { memo: 'サウナで整った' });
     f = toggleBriefDone(f, 1);
-    f = setBrief(f, { good: 'サウナ', yohaku: true });
-    expect(f.brief).toEqual({ done: [1], carry: '紹介表に1行', good: 'サウナ', yohaku: true });
+    f = setBrief(f, { q: { lead: true, yohaku: false } });
+    expect(f.brief).toEqual({ done: [1], memo: 'サウナで整った', q: { lead: true, yohaku: false } });
     f = toggleBriefDone(f, 1);
-    expect(f.brief).toEqual({ done: [], carry: '紹介表に1行', good: 'サウナ', yohaku: true });
+    expect(f.brief).toEqual({ done: [], memo: 'サウナで整った', q: { lead: true, yohaku: false } });
   });
 });
 
@@ -123,5 +123,16 @@ describe('夜の振り返りの日付', () => {
     expect(reflectionDay(Date.parse('2026-10-21T15:30:00Z'))).toBe('2026-10-21'); // 10/22 0:30 JST
     expect(reflectionDay(Date.parse('2026-10-21T19:30:00Z'))).toBe('2026-10-22'); // 10/22 4:30 JST
     expect(reflectionDay(Date.parse('2026-10-21T13:00:00Z'))).toBe('2026-10-21'); // 10/21 22:00 JST
+  });
+});
+
+import { lastDays, tally } from './night';
+describe('夜の振り返りの集計', () => {
+  it('直近7日と、問いごとのできた数', () => {
+    expect(lastDays('2026-10-21', 3)).toEqual(['2026-10-21', '2026-10-20', '2026-10-19']);
+    const t = tally([{ lead: true, body: false }, undefined, { lead: false }]);
+    expect(t.lead).toEqual({ yes: 1, answered: 2 });
+    expect(t.body).toEqual({ yes: 0, answered: 1 });
+    expect(t.yohaku).toEqual({ yes: 0, answered: 0 });
   });
 });

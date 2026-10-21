@@ -291,3 +291,13 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .seg button.on { background: var(--accent); color: #fff; font-weight: 700; }
 .carry .sec { display: block; }
 .reflect-past { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--soft); line-height: 1.7; }
+.night-note { margin: 0 4px 14px; font-size: 15px; line-height: 1.8; color: var(--ink-2); }
+.nq { list-style: none; margin: 8px 0 4px; padding: 0; display: grid; gap: 14px; }
+.nq-text { font-weight: 700; font-size: 15.5px; line-height: 1.6; margin-bottom: 6px; }
+.seg button.off { background: var(--muted); }
+.week { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }
+.week th, .week td { padding: 4px 2px; }
+.week tbody th { text-align: left; font-weight: 700; white-space: nowrap; }
+.week thead th { color: var(--muted); font-weight: 600; }
+.week thead th.is-today { color: var(--accent); }
+.dot-yes { color: var(--accent); } .dot-no { color: var(--muted); } .dot-none { color: var(--line); }

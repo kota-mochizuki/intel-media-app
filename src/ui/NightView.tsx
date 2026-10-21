@@ -1,46 +1,66 @@
-import { formatDate, reflectionDay } from '../lib/dates';
-import { setBrief, toggleBriefDone, useBrief } from './BriefCard';
+import { localFeedback } from '../lib/data';
+import { formatDate, reflectionDay, weekday } from '../lib/dates';
+import { NIGHT_QUESTIONS, lastDays, tally } from '../lib/night';
+import { setBrief, useBrief } from './BriefCard';
 import { Inline } from './RichText';
 import { useFeedback } from './useFeedback';
 
-/** 「夜」タブ：寝る前の振り返り。答えは同じ日のフィードバックに保存し、翌朝の秘書が読む */
+const WD = ['日', '月', '火', '水', '木', '金', '土'];
+
+/** 「夜」タブ：1日の振り返り。進みたい方向に進めたかを、主観の2択で答える。答えは翌朝の秘書が読む */
 export function NightView() {
   const id = reflectionDay();
   const brief = useBrief(id);
   const { fb, update } = useFeedback(id);
-  const b = fb.brief ?? { done: [] };
-  const done = new Set(b.done);
+  const q = fb.brief?.q ?? {};
+  const answer = (k: string, v: boolean) => update((f) => {
+    const cur = { ...f.brief?.q };
+    if (cur[k] === v) delete cur[k]; else cur[k] = v; // 同じ方をもう一度押すと取り消し
+    return setBrief(f, { q: cur });
+  });
+  // 直近7日（今日を含む）。今日の分は入力中の値を使う
+  const days = lastDays(id, 7);
+  const qsOf = (d: string) => (d === id ? q : localFeedback(d)?.brief?.q);
+  const t = tally(days.map(qsOf));
   return (
     <div className="nightview">
       <header className="masthead masthead-night">
         <div className="masthead-date">{formatDate(id)}</div>
-        <div className="masthead-row"><span className="theme">今日の振り返り</span><span className="muted">1〜2分</span></div>
+        <div className="masthead-row"><span className="theme">1日の振り返り</span><span className="muted">1分</span></div>
       </header>
-      {brief?.evening && <section className="card night-note"><div className="label">秘書から</div><p><Inline text={brief.evening} /></p></section>}
+      {brief?.evening && <p className="night-note"><Inline text={brief.evening} /></p>}
       <section className="card night">
-        {brief && (
-          <>
-            <h3 className="sec">今朝の「やること」</h3>
-            <ul className="brief-today">
-              {brief.today.map((t, i) => (
-                <li key={i}><label className={done.has(i) ? 'is-done' : ''}><input type="checkbox" checked={done.has(i)} onChange={() => update((f) => toggleBriefDone(f, i))} /><span><Inline text={t.text} /></span></label></li>
-              ))}
-            </ul>
-          </>
-        )}
-        <h3 className="sec">余白の時間（サウナ・読書・ゲームなど）</h3>
-        <div className="seg" role="group" aria-label="余白の時間">
-          {([[true, 'とれた'], [false, 'とれなかった']] as const).map(([v, label]) => (
-            <button key={label} className={b.yohaku === v ? 'on' : ''} onClick={() => update((f) => setBrief(f, { yohaku: b.yohaku === v ? undefined : v }))}>{label}</button>
+        <p className="muted small">直感で答えてください。正解はありません。</p>
+        <ul className="nq">
+          {NIGHT_QUESTIONS.map((x) => (
+            <li key={x.id}>
+              <div className="nq-text">{x.text}</div>
+              <div className="seg" role="group" aria-label={x.text}>
+                <button className={q[x.id] === true ? 'on' : ''} onClick={() => answer(x.id, true)}>できた</button>
+                <button className={q[x.id] === false ? 'on off' : ''} onClick={() => answer(x.id, false)}>できなかった</button>
+              </div>
+            </li>
           ))}
-        </div>
-        <label className="carry"><span className="sec">今日よかったこと（1つ）</span>
-          <textarea rows={2} value={b.good ?? ''} onChange={(e) => update((f) => setBrief(f, { good: e.target.value }))} /></label>
-        <label className="carry"><span className="sec">明日に持ち越すこと（なければ空で）</span>
-          <textarea rows={2} value={b.carry ?? ''} onChange={(e) => update((f) => setBrief(f, { carry: e.target.value }))} /></label>
-        <p className="muted small">書いた内容は、明日の朝の秘書が読みます。おやすみなさい。</p>
+        </ul>
+        <label className="carry"><span className="sec">ひとこと（任意）</span>
+          <textarea rows={2} placeholder="よかったこと、明日に持ち越すことなど" value={fb.brief?.memo ?? ''} onChange={(e) => update((f) => setBrief(f, { memo: e.target.value }))} /></label>
       </section>
-      {!brief && <p className="muted small">今日の秘書の報告はまだありません。</p>}
+      <section className="card">
+        <div className="label">この7日間</div>
+        <table className="week">
+          <thead><tr><th />{[...days].reverse().map((d) => <th key={d} className={d === id ? 'is-today' : ''}>{WD[weekday(d)]}</th>)}<th /></tr></thead>
+          <tbody>
+            {NIGHT_QUESTIONS.map((x) => (
+              <tr key={x.id}>
+                <th>{x.short}</th>
+                {[...days].reverse().map((d) => { const v = qsOf(d)?.[x.id]; return <td key={d}>{v === undefined ? <span className="dot-none">・</span> : v ? <span className="dot-yes">●</span> : <span className="dot-no">○</span>}</td>; })}
+                <td className="muted small">{t[x.id].yes}/{t[x.id].answered}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="muted small">●できた ○できなかった。書いた内容は、明日の朝の秘書が読みます。おやすみなさい。</p>
+      </section>
     </div>
   );
 }

@@ -31,8 +31,8 @@ export interface Brief {
   horizon: { year: BriefHorizon; five: BriefHorizon; ten: BriefHorizon };
 }
 
-/** 秘書の報告への反応。done＝今日やることのチェック、夜の振り返り（good・carry・yohaku）は翌朝の秘書が読む */
-export interface BriefFeedback { done: number[]; good?: string; carry?: string; yohaku?: boolean }
+/** 秘書の報告への反応。done＝今日やることのチェック。夜の振り返り（q＝問いごとの できた/できなかった、memo＝ひとこと）は翌朝の秘書が読む */
+export interface BriefFeedback { done: number[]; q?: Record<string, boolean>; memo?: string }
 export interface ItemFeedback { star?: boolean; note?: string; done?: boolean }
 export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: BriefFeedback; items: Record<string, ItemFeedback>; updatedAt: string }
 
