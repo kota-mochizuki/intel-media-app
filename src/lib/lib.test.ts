@@ -104,3 +104,15 @@ describe('秘書の報告：チェックと持ち越し', () => {
     expect(f.brief).toEqual({ done: [], carry: '紹介表に1行' });
   });
 });
+
+import { isDone, summarize } from './cfp';
+describe('CFP', () => {
+  const s = { total: 684, totals: { risk: 114 }, progressAt: null, answered: { L1: 5, L2: 2 },
+    delivered: [{ id: 'L1', date: '', subject: 'risk', title: 'a', minutes: 30, questions: 5 }, { id: 'L2', date: '', subject: 'risk', title: 'b', minutes: 15, questions: 3 }, { id: 'L3', date: '', subject: 'risk', title: 'c', minutes: 15, questions: 3 }] };
+  it('確認問題をすべて答えた講義だけを解き終えたとみなす', () => {
+    expect(isDone(s, s.delivered[0])).toBe(true);
+    const r = summarize(s);
+    expect(r.open.map((l) => l.id)).toEqual(['L2', 'L3']);
+    expect(r.doneBy).toEqual({ risk: 1 });
+  });
+});
