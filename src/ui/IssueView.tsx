@@ -6,7 +6,7 @@ import { setItem } from '../lib/feedback';
 import { useFeedback, type Status } from './useFeedback';
 import { Artwork, Figure } from './Figure';
 import { Inline, RichText } from './RichText';
-import { BriefCard, setBriefCarry, toggleBriefDone, useBrief } from './BriefCard';
+import { BriefCard, toggleBriefDone, useBrief } from './BriefCard';
 import { ChecklistCards } from './ChecklistCard';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
@@ -49,8 +49,8 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
         </div>
       </header>
 
-      {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} onCarry={(s) => update((f) => setBriefCarry(f, s))} />}
-      {isToday && <ChecklistCards />}
+      {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} />}
+      {isToday && <ChecklistCards compact />}
 
       {quiz && (
         <section className="card quiz-answer">

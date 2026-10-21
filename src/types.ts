@@ -25,14 +25,16 @@ export interface Issue { id: string; kind: 'daily' | 'deepdive' | 'digest'; note
 export interface BriefTask { text: string; why?: string; due?: string }
 export interface BriefHorizon { line: string; detail?: string }
 export interface Brief {
-  id: string; greeting?: string;
+  id: string; greeting?: string; evening?: string;
   today: BriefTask[]; week?: BriefTask[]; month?: BriefTask[];
   signals?: { area: string; level: '黄' | '赤'; text: string }[];
   horizon: { year: BriefHorizon; five: BriefHorizon; ten: BriefHorizon };
 }
 
+/** 秘書の報告への反応。done＝今日やることのチェック、夜の振り返り（good・carry・yohaku）は翌朝の秘書が読む */
+export interface BriefFeedback { done: number[]; good?: string; carry?: string; yohaku?: boolean }
 export interface ItemFeedback { star?: boolean; note?: string; done?: boolean }
-export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: { done: number[]; carry?: string }; items: Record<string, ItemFeedback>; updatedAt: string }
+export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: BriefFeedback; items: Record<string, ItemFeedback>; updatedAt: string }
 
 // やることリスト（intel-media-data の lists/ と checks/）
 export interface ListItem { id: string; text: string; who: string; due?: string; note?: string; source?: { title: string; url: string; publisher: string } }

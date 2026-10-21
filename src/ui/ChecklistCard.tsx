@@ -6,17 +6,18 @@ import { formatDate, todayJst } from '../lib/dates';
 import { Inline } from './RichText';
 import { useChecks } from './useChecks';
 
-export function ChecklistCards() {
+/** compact：朝の画面用。見出し1行と、次にやること2つだけ（残りは折りたたみ） */
+export function ChecklistCards({ compact }: { compact?: boolean }) {
   const [ids, setIds] = useState<string[]>(cachedListIds);
   useEffect(() => {
     let off = false;
     fetchListIds().then((x) => { if (!off) setIds(x); }).catch(() => { /* 控えのまま */ });
     return () => { off = true; };
   }, []);
-  return <>{ids.map((id) => <ChecklistOf key={id} id={id} />)}</>;
+  return <>{ids.map((id) => <ChecklistOf key={id} id={id} compact={compact} />)}</>;
 }
 
-function ChecklistOf({ id }: { id: string }) {
+function ChecklistOf({ id, compact }: { id: string; compact?: boolean }) {
   const [list, setList] = useState<Checklist | null>(() => cachedList(id));
   useEffect(() => {
     let off = false;
@@ -36,9 +37,46 @@ function ChecklistOf({ id }: { id: string }) {
   const p = progress(list, done);
   const left = list.target ? daysUntil(list.target, today) : null;
   const doneForNext = Object.fromEntries(Object.entries(done).filter(([k]) => !kept.has(k)));
-  const next = nextItems(list, doneForNext, 3);
+  const next = nextItems(list, doneForNext, compact ? 2 : 3);
   const firstOpen = list.sections.find((s) => s.items.some((i) => !done[i.id]))?.id;
 
+  const all = (
+    <details className="fold">
+      <summary>すべての項目（{p.total}）</summary>
+      {list.intro && <p className="small muted"><Inline text={list.intro} /></p>}
+      {list.sections.map((s) => {
+        const d = s.items.filter((i) => done[i.id]).length;
+        return (
+          <details key={s.id} className="cl-section" open={s.id === firstOpen}>
+            <summary><span className="cl-count muted small">{d}/{s.items.length}</span><span className="cl-sname">{s.title}</span></summary>
+            <ul className="cl-list">{s.items.map((i) => <Row key={i.id} item={i} done={Boolean(done[i.id])} today={today} onToggle={() => onToggle(i.id)} />)}</ul>
+          </details>
+        );
+      })}
+    </details>
+  );
+  if (compact) return (
+    <section className="card checklist cl-compact">
+      <div className="cl-head">
+        <b>{list.title}</b>
+        <span className="muted small">{p.done}/{p.total}{left !== null && left >= 0 && `・あと${left}日`}</span>
+      </div>
+      {next.length > 0 ? (
+        <ul className="cl-mini">
+          {next.map((i) => (
+            <li key={i.id} className={done[i.id] ? 'is-done' : ''}>
+              <label>
+                <input type="checkbox" checked={Boolean(done[i.id])} onChange={() => onToggle(i.id)} />
+                <span className="cl-text"><Inline text={i.text} /></span>
+                {i.due && <span className="muted small nobr">〜{Number(i.due.slice(5, 7))}/{Number(i.due.slice(8, 10))}</span>}
+              </label>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="small muted">すべて終わりました。</p>}
+      {all}
+    </section>
+  );
   return (
     <section className="card checklist">
       <div className="label">やることリスト</div>
@@ -56,19 +94,7 @@ function ChecklistOf({ id }: { id: string }) {
         </>
       ) : <p className="done-title">すべて終わりました。おつかれさまでした。</p>}
 
-      <details className="fold">
-        <summary>すべての項目（{p.total}）</summary>
-        {list.intro && <p className="small muted"><Inline text={list.intro} /></p>}
-        {list.sections.map((s) => {
-          const d = s.items.filter((i) => done[i.id]).length;
-          return (
-            <details key={s.id} className="cl-section" open={s.id === firstOpen}>
-              <summary><span className="cl-count muted small">{d}/{s.items.length}</span><span className="cl-sname">{s.title}</span></summary>
-              <ul className="cl-list">{s.items.map((i) => <Row key={i.id} item={i} done={Boolean(done[i.id])} today={today} onToggle={() => onToggle(i.id)} />)}</ul>
-            </details>
-          );
-        })}
-      </details>
+      {all}
     </section>
   );
 }

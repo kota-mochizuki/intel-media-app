@@ -5,13 +5,14 @@ import { IssueView } from './ui/IssueView';
 import { Past } from './ui/Past';
 import { Settings } from './ui/Settings';
 import { CfpView } from './ui/CfpView';
+import { NightView } from './ui/NightView';
 
-type Route = { tab: 'today' } | { tab: 'cfp' } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
+type Route = { tab: 'today' } | { tab: 'night' } | { tab: 'cfp' } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
 const parse = (): Route => {
   const h = location.hash.replace(/^#\/?/, '');
   const m = h.match(/^issue\/(\d{4}-\d{2}-\d{2})$/);
   if (m) return { tab: 'issue', id: m[1] };
-  return h === 'cfp' ? { tab: 'cfp' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
+  return h === 'night' ? { tab: 'night' } : h === 'cfp' ? { tab: 'cfp' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
 };
 
 export function App() {
@@ -47,6 +48,7 @@ export function App() {
   let body;
   if (route.tab === 'settings') body = <Settings onSaved={() => { setConfigured(isConfigured()); }} />;
   else if (!configured) body = <Welcome />;
+  else if (route.tab === 'night') body = <NightView />;
   else if (route.tab === 'cfp') body = <CfpView />;
   else if (route.tab === 'past') body = <Past ids={ids} />;
   else if (route.tab === 'issue') body = <IssueView key={route.id} id={route.id} ids={ids} />;
@@ -59,7 +61,8 @@ export function App() {
       {error && <div className="banner banner-warn">{error}　<a href="#/settings">設定を確認</a></div>}
       <main className="main">{body}</main>
       <nav className="tabbar" aria-label="メニュー">
-        <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />今日</a>
+        <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />朝</a>
+        <a href="#/night" className={tab === 'night' ? 'on' : ''}><TabIcon d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />夜</a>
         <a href="#/cfp" className={tab === 'cfp' ? 'on' : ''}><TabIcon d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5ZM7 8v5c0 1.7 2.2 3 5 3s5-1.3 5-3V8M20 6.5V12" />CFP</a>
         <a href="#/past" className={tab === 'past' ? 'on' : ''}><TabIcon d="M4 5h16M4 10h16M4 15h10M4 20h7" />過去</a>
       </nav>

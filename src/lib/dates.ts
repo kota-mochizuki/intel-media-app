@@ -20,3 +20,6 @@ export function readMinutes(issue: Issue): number {
     issue.items.reduce((n, it) => n + it.title.length + it.insight.text.length + (it.points ?? []).join('').length + it.why.length + (it.action?.length ?? 0) + (it.points ? 0 : (it.summary ?? '').length), 0);
   return Math.max(1, Math.round(chars / 500));
 }
+
+/** 夜の振り返りの日付。日付が変わっても朝4時までは前の日の振り返りとして扱う */
+export const reflectionDay = (now = Date.now()) => todayJst(now - 4 * 3600_000);

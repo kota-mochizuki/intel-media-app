@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Brief, BriefTask, Feedback } from '../types';
+import type { Brief, BriefFeedback, BriefTask, Feedback } from '../types';
 import { cachedBrief, fetchBrief } from '../lib/data';
 import { Inline } from './RichText';
 
@@ -25,10 +25,11 @@ export const toggleBriefDone = (f: Feedback, i: number): Feedback => {
   if (cur.has(i)) cur.delete(i); else cur.add(i);
   return { ...f, brief: { ...f.brief, done: [...cur].sort((a, b) => a - b) } };
 };
-export const setBriefCarry = (f: Feedback, carry: string): Feedback => ({ ...f, brief: { done: f.brief?.done ?? [], carry } });
+/** 夜の振り返りの1項目を書き換える */
+export const setBrief = (f: Feedback, patch: Partial<BriefFeedback>): Feedback => ({ ...f, brief: { done: [], ...f.brief, ...patch } });
 
 /** 秘書の朝の報告。今日やることはチェックでき、翌朝の秘書が読む。compact は「今日」画面の上に置く短い版 */
-export function BriefCard({ brief, fb, onToggle, onCarry, compact }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void; onCarry: (s: string) => void; compact?: boolean }) {
+export function BriefCard({ brief, fb, onToggle, compact }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void; compact?: boolean }) {
   const done = new Set(fb.brief?.done ?? []);
   const h = brief.horizon;
   const later = (
@@ -55,10 +56,7 @@ export function BriefCard({ brief, fb, onToggle, onCarry, compact }: { brief: Br
           </li>
         ))}
       </ul>
-      <label className="carry">
-        <span className="muted small">夜の一言：明日に持ち越すこと（なければ空で）</span>
-        <textarea rows={2} value={fb.brief?.carry ?? ''} onChange={(e) => onCarry(e.target.value)} />
-      </label>
+      <Reflection fb={fb.brief} />
       {compact ? <details className="fold"><summary>今週・今月</summary>{later}</details> : later}
       <details className="fold horizon">
         <summary>この先の見通し（1年・5年・10年）</summary>
@@ -70,5 +68,18 @@ export function BriefCard({ brief, fb, onToggle, onCarry, compact }: { brief: Br
         ))}
       </details>
     </section>
+  );
+}
+
+/** 過去の日に、その夜の振り返りを読み返す（書き換えは「夜」タブから） */
+function Reflection({ fb }: { fb?: BriefFeedback }) {
+  if (!fb?.good && !fb?.carry && fb?.yohaku === undefined) return null;
+  return (
+    <div className="reflect-past small">
+      <div className="muted">その夜の振り返り</div>
+      {fb.yohaku !== undefined && <div>余白の時間：{fb.yohaku ? 'とれた' : 'とれなかった'}</div>}
+      {fb.good && <div>よかったこと：{fb.good}</div>}
+      {fb.carry && <div>持ち越し：{fb.carry}</div>}
+    </div>
   );
 }

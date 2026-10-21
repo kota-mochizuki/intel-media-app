@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, readMinutes, themeOf, todayJst, weekday } from './dates';
+import { formatDate, readMinutes, reflectionDay, themeOf, todayJst, weekday } from './dates';
 import { emptyFeedback, setItem, starCount, unreadIds } from './feedback';
 import { fromB64, toB64 } from './b64';
 import type { Issue } from '../types';
@@ -96,12 +96,13 @@ describe('checklist', () => {
 
 describe('秘書の報告：チェックと持ち越し', () => {
   it('チェックを切り替えても持ち越しの一言は消えない', async () => {
-    const { toggleBriefDone, setBriefCarry } = await import('../ui/BriefCard');
-    let f = setBriefCarry(emptyFeedback('2026-10-21'), '紹介表に1行');
+    const { toggleBriefDone, setBrief } = await import('../ui/BriefCard');
+    let f = setBrief(emptyFeedback('2026-10-21'), { carry: '紹介表に1行' });
     f = toggleBriefDone(f, 1);
-    expect(f.brief).toEqual({ done: [1], carry: '紹介表に1行' });
+    f = setBrief(f, { good: 'サウナ', yohaku: true });
+    expect(f.brief).toEqual({ done: [1], carry: '紹介表に1行', good: 'サウナ', yohaku: true });
     f = toggleBriefDone(f, 1);
-    expect(f.brief).toEqual({ done: [], carry: '紹介表に1行' });
+    expect(f.brief).toEqual({ done: [], carry: '紹介表に1行', good: 'サウナ', yohaku: true });
   });
 });
 
@@ -114,5 +115,13 @@ describe('CFP', () => {
     const r = summarize(s);
     expect(r.open.map((l) => l.id)).toEqual(['L2', 'L3']);
     expect(r.doneBy).toEqual({ risk: 1 });
+  });
+});
+
+describe('夜の振り返りの日付', () => {
+  it('朝4時までは前の日', () => {
+    expect(reflectionDay(Date.parse('2026-10-21T15:30:00Z'))).toBe('2026-10-21'); // 10/22 0:30 JST
+    expect(reflectionDay(Date.parse('2026-10-21T19:30:00Z'))).toBe('2026-10-22'); // 10/22 4:30 JST
+    expect(reflectionDay(Date.parse('2026-10-21T13:00:00Z'))).toBe('2026-10-21'); // 10/21 22:00 JST
   });
 });
