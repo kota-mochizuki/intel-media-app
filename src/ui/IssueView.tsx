@@ -7,6 +7,7 @@ import { useFeedback, type Status } from './useFeedback';
 import { Artwork, Figure } from './Figure';
 import { Inline, RichText } from './RichText';
 import { BriefCard, setBriefCarry, toggleBriefDone, useBrief } from './BriefCard';
+import { ChecklistCards } from './ChecklistCard';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -23,7 +24,8 @@ function useIssue(id: string | undefined) {
   return { issue, error };
 }
 
-export function IssueView({ id, ids }: { id: string; ids: string[] }) {
+/** 1日分の画面。isToday のときだけ、やることリスト（入籍の準備など）も出す */
+export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isToday?: boolean }) {
   const { issue, error } = useIssue(id);
   const prevId = ids[ids.indexOf(id) + 1];
   const { issue: prev } = useIssue(prevId);
@@ -48,6 +50,7 @@ export function IssueView({ id, ids }: { id: string; ids: string[] }) {
       </header>
 
       {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} onCarry={(s) => update((f) => setBriefCarry(f, s))} />}
+      {isToday && <ChecklistCards />}
 
       {quiz && (
         <section className="card quiz-answer">

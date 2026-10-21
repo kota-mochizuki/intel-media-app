@@ -62,23 +62,6 @@ export async function fetchIssue(id: string): Promise<Issue> {
 }
 
 // ---- 秘書の朝の報告（なければ null）----
-export const cachedBriefIds = () => store.get<string[]>(P + 'briefIds') ?? [];
-/** 報告の日付一覧（新しい順） */
-export async function fetchBriefIds(): Promise<string[]> {
-  let ids: string[];
-  if (isDemo()) {
-    const r = await fetch('./demo/briefs/index.json', { cache: 'no-store' });
-    ids = r.ok ? await r.json() : [];
-  } else {
-    const res = await gh('briefs');
-    if (res.status === 404) ids = [];
-    else if (!res.ok) throw new HttpError(res.status);
-    else ids = ((await res.json()) as { name: string }[]).map((f) => f.name).filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n)).map((n) => n.slice(0, 10));
-  }
-  ids.sort().reverse();
-  store.set(P + 'briefIds', ids);
-  return ids;
-}
 export const cachedBrief = (id: string) => store.get<Brief>(P + 'brief:' + id);
 export async function fetchBrief(id: string): Promise<Brief | null> {
   const res = isDemo() ? await fetch(`./demo/briefs/${id}.json`, { cache: 'no-store' }) : await gh(`briefs/${id}.json`, {}, true);

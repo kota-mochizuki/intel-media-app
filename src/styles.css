@@ -234,8 +234,6 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 /* 秘書タブ */
 .masthead-brief { border-top-color: var(--ink-2); }
 .masthead-brief .theme { background: var(--ink-2); }
-.briefview .brief { border-top: 1px solid var(--line); }
-.briefview .brief > .label { display: none; }
 .past-briefs { margin: 4px 2px 24px; }
 .linklike { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 15px; }
 
