@@ -99,10 +99,10 @@ describe('秘書の報告：チェックと持ち越し', () => {
     const { toggleBriefDone, setBrief } = await import('../ui/BriefCard');
     let f = setBrief(emptyFeedback('2026-10-21'), { memo: 'サウナで整った' });
     f = toggleBriefDone(f, 1);
-    f = setBrief(f, { q: { lead: true, yohaku: false } });
-    expect(f.brief).toEqual({ done: [1], memo: 'サウナで整った', q: { lead: true, yohaku: false } });
+    f = setBrief(f, { q: { cfp: true, yohaku: false } });
+    expect(f.brief).toEqual({ done: [1], memo: 'サウナで整った', q: { cfp: true, yohaku: false } });
     f = toggleBriefDone(f, 1);
-    expect(f.brief).toEqual({ done: [], memo: 'サウナで整った', q: { lead: true, yohaku: false } });
+    expect(f.brief).toEqual({ done: [], memo: 'サウナで整った', q: { cfp: true, yohaku: false } });
   });
 });
 
@@ -115,6 +115,7 @@ describe('CFP', () => {
     const r = summarize(s);
     expect(r.open.map((l) => l.id)).toEqual(['L2', 'L3']);
     expect(r.doneBy).toEqual({ risk: 1 });
+    expect(summarize({ ...s, skip: ['L3'] }).open.map((l) => l.id)).toEqual(['L2']);
   });
 });
 
@@ -126,13 +127,17 @@ describe('夜の振り返りの日付', () => {
   });
 });
 
-import { lastDays, tally } from './night';
+import { lastDays, questionsFor, tally } from './night';
 describe('夜の振り返りの集計', () => {
   it('直近7日と、問いごとのできた数', () => {
     expect(lastDays('2026-10-21', 3)).toEqual(['2026-10-21', '2026-10-20', '2026-10-19']);
-    const t = tally([{ lead: true, body: false }, undefined, { lead: false }]);
-    expect(t.lead).toEqual({ yes: 1, answered: 2 });
-    expect(t.body).toEqual({ yes: 0, answered: 1 });
+    const t = tally([{ cfp: true, knee: false }, undefined, { cfp: false }]);
+    expect(t.cfp).toEqual({ yes: 1, answered: 2 });
+    expect(t.knee).toEqual({ yes: 0, answered: 1 });
     expect(t.yohaku).toEqual({ yes: 0, answered: 0 });
+  });
+  it('入籍の問いは入籍日まで', () => {
+    expect(questionsFor('2026-11-22').some((x) => x.id === 'nyuseki')).toBe(true);
+    expect(questionsFor('2026-11-23').some((x) => x.id === 'nyuseki')).toBe(false);
   });
 });

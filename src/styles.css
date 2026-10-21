@@ -301,3 +301,4 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .week thead th { color: var(--muted); font-weight: 600; }
 .week thead th.is-today { color: var(--accent); }
 .dot-yes { color: var(--accent); } .dot-no { color: var(--muted); } .dot-none { color: var(--line); }
+.past-link { text-align: center; margin: 8px 0 24px; font-size: 14.5px; }

@@ -10,14 +10,14 @@ export const EXAM_DAY = '2027-06-13';
 export const SUBJECT_SHORT: Record<string, string> = { finance: '金融', realestate: '不動産', life: 'ライフ', risk: 'リスク', tax: 'タックス', inheritance: '相続' };
 
 export interface CfpLecture { id: string; date: string; subject: string; title: string; minutes: number; questions: number }
-export interface CfpState { delivered: CfpLecture[]; total: number; totals: Record<string, number>; answered: Record<string, number>; progressAt: string | null }
+export interface CfpState { delivered: CfpLecture[]; total: number; totals: Record<string, number>; answered: Record<string, number>; progressAt: string | null; skip?: string[] }
 
 const K = 'imc:cfp';
 export const cachedCfp = () => store.get<CfpState>(K);
 
 export async function fetchCfp(): Promise<CfpState> {
   const get = async (u: string) => { const r = await fetch(u, { cache: 'no-store' }); if (!r.ok) throw new Error(`CFPのデータを読めません（${r.status}）`); return r.json(); };
-  const [index, cur, prog] = await Promise.all([get(`${RAW}/index.json`), get(`${RAW}/curriculum.json`), get(PROGRESS).catch(() => null)]);
+  const [index, cur, prog, skip] = await Promise.all([get(`${RAW}/index.json`), get(`${RAW}/curriculum.json`), get(PROGRESS).catch(() => null), get(`${RAW}/skip.json`).catch(() => [])]);
   const qs = new Map<string, number>((cur.lectures as { id: string; questions: number }[]).map((l) => [l.id, l.questions]));
   const totals: Record<string, number> = {};
   for (const l of cur.lectures as { subject: string }[]) totals[l.subject] = (totals[l.subject] ?? 0) + 1;
@@ -29,6 +29,7 @@ export async function fetchCfp(): Promise<CfpState> {
     totals,
     answered: docs[0] ? (JSON.parse(docs[0].fields.json.stringValue).answered ?? {}) : {},
     progressAt: docs[0]?.fields.updatedAt?.timestampValue ?? null,
+    skip: skip as string[],
   };
   store.set(K, s);
   return s;
@@ -38,7 +39,8 @@ export async function fetchCfp(): Promise<CfpState> {
 export const isDone = (s: CfpState, l: CfpLecture) => (s.answered[l.id] ?? 0) >= l.questions;
 
 export function summarize(s: CfpState) {
-  const open = s.delivered.filter((l) => !isDone(s, l)).sort((a, b) => a.id.localeCompare(b.id));
+  // 解かなくてよい回（skip.json）は、まだ解いていない一覧に出さない
+  const open = s.delivered.filter((l) => !isDone(s, l) && !s.skip?.includes(l.id)).sort((a, b) => a.id.localeCompare(b.id));
   const done = s.delivered.filter((l) => isDone(s, l)).sort((a, b) => b.id.localeCompare(a.id));
   const doneBy: Record<string, number> = {};
   for (const l of done) doneBy[l.subject] = (doneBy[l.subject] ?? 0) + 1;

@@ -43,7 +43,7 @@ export function App() {
   // 「今日」は、今日以前でいちばん新しい配信
   const today = todayJst();
   const latest = ids.find((id) => id <= today) ?? ids[0];
-  const tab = route.tab === 'issue' ? 'past' : route.tab;
+  const tab = route.tab === 'issue' || route.tab === 'past' ? 'today' : route.tab; // 過去の配信は朝の画面の下から開く
 
   let body;
   if (route.tab === 'settings') body = <Settings onSaved={() => { setConfigured(isConfigured()); }} />;
@@ -64,7 +64,6 @@ export function App() {
         <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />朝</a>
         <a href="#/night" className={tab === 'night' ? 'on' : ''}><TabIcon d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />夜</a>
         <a href="#/cfp" className={tab === 'cfp' ? 'on' : ''}><TabIcon d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5ZM7 8v5c0 1.7 2.2 3 5 3s5-1.3 5-3V8M20 6.5V12" />CFP</a>
-        <a href="#/past" className={tab === 'past' ? 'on' : ''}><TabIcon d="M4 5h16M4 10h16M4 15h10M4 20h7" />過去</a>
       </nav>
       {route.tab !== 'settings' && (
         <a href="#/settings" className="gear" aria-label="設定"><TabIcon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-1-3-2 .2-1.3-1.4.2-2-3-1-1 2h-1.8l-1-2-3 1 .2 2L5 7.2 3 7l-1 3 2 1v2l-2 1 1 3 2-.2 1.3 1.4-.2 2 3 1 1-2h1.8l1 2 3-1-.2-2 1.3-1.4 2 .2 1-3-2-1Z" /></a>

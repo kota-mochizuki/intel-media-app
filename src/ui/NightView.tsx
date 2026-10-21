@@ -1,6 +1,6 @@
 import { localFeedback } from '../lib/data';
 import { formatDate, reflectionDay, weekday } from '../lib/dates';
-import { NIGHT_QUESTIONS, lastDays, tally } from '../lib/night';
+import { lastDays, questionsFor, tally } from '../lib/night';
 import { setBrief, useBrief } from './BriefCard';
 import { Inline } from './RichText';
 import { useFeedback } from './useFeedback';
@@ -13,6 +13,7 @@ export function NightView() {
   const brief = useBrief(id);
   const { fb, update } = useFeedback(id);
   const q = fb.brief?.q ?? {};
+  const qs = questionsFor(id);
   const answer = (k: string, v: boolean) => update((f) => {
     const cur = { ...f.brief?.q };
     if (cur[k] === v) delete cur[k]; else cur[k] = v; // 同じ方をもう一度押すと取り消し
@@ -21,7 +22,7 @@ export function NightView() {
   // 直近7日（今日を含む）。今日の分は入力中の値を使う
   const days = lastDays(id, 7);
   const qsOf = (d: string) => (d === id ? q : localFeedback(d)?.brief?.q);
-  const t = tally(days.map(qsOf));
+  const t = tally(days.map(qsOf), qs);
   return (
     <div className="nightview">
       <header className="masthead masthead-night">
@@ -32,7 +33,7 @@ export function NightView() {
       <section className="card night">
         <p className="muted small">直感で答えてください。正解はありません。</p>
         <ul className="nq">
-          {NIGHT_QUESTIONS.map((x) => (
+          {qs.map((x) => (
             <li key={x.id}>
               <div className="nq-text">{x.text}</div>
               <div className="seg" role="group" aria-label={x.text}>
@@ -50,7 +51,7 @@ export function NightView() {
         <table className="week">
           <thead><tr><th />{[...days].reverse().map((d) => <th key={d} className={d === id ? 'is-today' : ''}>{WD[weekday(d)]}</th>)}<th /></tr></thead>
           <tbody>
-            {NIGHT_QUESTIONS.map((x) => (
+            {qs.map((x) => (
               <tr key={x.id}>
                 <th>{x.short}</th>
                 {[...days].reverse().map((d) => { const v = qsOf(d)?.[x.id]; return <td key={d}>{v === undefined ? <span className="dot-none">・</span> : v ? <span className="dot-yes">●</span> : <span className="dot-no">○</span>}</td>; })}

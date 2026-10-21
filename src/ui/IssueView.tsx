@@ -94,6 +94,7 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
           </div>
         )}
       </section>
+      {isToday && <p className="past-link"><a href="#/past">過去の配信を見る</a></p>}
     </article>
   );
 }
