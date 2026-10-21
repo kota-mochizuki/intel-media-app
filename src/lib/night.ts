@@ -2,7 +2,7 @@
 // 本人の今の生活に合わせた具体的な問い（2026-10-21）。id は記録のキーなので変えない（文言は変えてよい）。療養が終わったら knee を運動の問いに差し替える
 export interface NightQuestion { id: string; short: string; text: string; from: string; until?: string }
 export const NIGHT_QUESTIONS: NightQuestion[] = [
-  { id: 'cfp', short: 'CFP', text: 'CFPの講義を1本以上解いた', from: '重点① CFP合格' },
+  { id: 'cfp', short: 'CFP', text: 'CFPの過去問に取り組んだ（紙・FPK）', from: '重点① CFP合格' },
   { id: 'nyuseki', short: '入籍', text: '入籍の準備を1つ進めた', from: '重点② 入籍後の生活', until: '2026-11-22' },
   { id: 'referral', short: '紹介', text: '紹介元やお客様との関係に、1つ手を打てた（連絡・お礼・提案）', from: '重点③ 紹介ネットワーク' },
   { id: 'partner', short: 'パートナー', text: 'パートナーとゆっくり過ごす・話す時間をとれた', from: '最低ライン（パートナー）' },

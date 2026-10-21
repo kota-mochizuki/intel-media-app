@@ -8,6 +8,9 @@ import { Artwork, Figure } from './Figure';
 import { Inline, RichText } from './RichText';
 import { BriefCard, toggleBriefDone, useBrief } from './BriefCard';
 import { ChecklistCards } from './ChecklistCard';
+import { WikiMorningCard, useWikiIndex } from './WikiView';
+import { newToday } from '../lib/wiki';
+import { todayJst } from '../lib/dates';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -30,7 +33,8 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
   const prevId = ids[ids.indexOf(id) + 1];
   const { issue: prev } = useIssue(prevId);
   const { fb, update, status } = useFeedback(id);
-  const brief = useBrief(id); // 秘書の報告は同じ日のフィードバックに書くので、更新は1つの useFeedback にまとめる
+  const brief = useBrief(id);
+  const wiki = useWikiIndex(); // 秘書の報告は同じ日のフィードバックに書くので、更新は1つの useFeedback にまとめる
   const theme = themeOf(id);
 
   if (!issue) return error ? <section className="card welcome"><p>{error}</p></section> : <Skeleton />;
@@ -51,6 +55,7 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
 
       {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} />}
       {isToday && <ChecklistCards compact />}
+      {isToday && <WikiMorningCard items={newToday(wiki, todayJst())} />}
 
       {quiz && (
         <section className="card quiz-answer">

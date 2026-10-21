@@ -4,15 +4,17 @@ import { todayJst } from './lib/dates';
 import { IssueView } from './ui/IssueView';
 import { Past } from './ui/Past';
 import { Settings } from './ui/Settings';
-import { CfpView } from './ui/CfpView';
+import { WikiEntryView, WikiView } from './ui/WikiView';
 import { NightView } from './ui/NightView';
 
-type Route = { tab: 'today' } | { tab: 'night' } | { tab: 'cfp' } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
+type Route = { tab: 'today' } | { tab: 'night' } | { tab: 'wiki' } | { tab: 'wikiEntry'; id: string } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
 const parse = (): Route => {
   const h = location.hash.replace(/^#\/?/, '');
   const m = h.match(/^issue\/(\d{4}-\d{2}-\d{2})$/);
   if (m) return { tab: 'issue', id: m[1] };
-  return h === 'night' ? { tab: 'night' } : h === 'cfp' ? { tab: 'cfp' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
+  const w = h.match(/^wiki\/([\w.]+)$/);
+  if (w) return { tab: 'wikiEntry', id: w[1] };
+  return h === 'night' ? { tab: 'night' } : h === 'wiki' ? { tab: 'wiki' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
 };
 
 export function App() {
@@ -43,13 +45,14 @@ export function App() {
   // 「今日」は、今日以前でいちばん新しい配信
   const today = todayJst();
   const latest = ids.find((id) => id <= today) ?? ids[0];
-  const tab = route.tab === 'issue' || route.tab === 'past' ? 'today' : route.tab; // 過去の配信は朝の画面の下から開く
+  const tab = route.tab === 'issue' || route.tab === 'past' ? 'today' : route.tab === 'wikiEntry' ? 'wiki' : route.tab; // 過去の配信は朝の画面の下から開く
 
   let body;
   if (route.tab === 'settings') body = <Settings onSaved={() => { setConfigured(isConfigured()); }} />;
   else if (!configured) body = <Welcome />;
   else if (route.tab === 'night') body = <NightView />;
-  else if (route.tab === 'cfp') body = <CfpView />;
+  else if (route.tab === 'wiki') body = <WikiView />;
+  else if (route.tab === 'wikiEntry') body = <WikiEntryView key={route.id} id={route.id} />;
   else if (route.tab === 'past') body = <Past ids={ids} />;
   else if (route.tab === 'issue') body = <IssueView key={route.id} id={route.id} ids={ids} />;
   else if (latest) body = <IssueView key={latest} id={latest} ids={ids} isToday />;
@@ -63,7 +66,7 @@ export function App() {
       <nav className="tabbar" aria-label="メニュー">
         <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />朝</a>
         <a href="#/night" className={tab === 'night' ? 'on' : ''}><TabIcon d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />夜</a>
-        <a href="#/cfp" className={tab === 'cfp' ? 'on' : ''}><TabIcon d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5ZM7 8v5c0 1.7 2.2 3 5 3s5-1.3 5-3V8M20 6.5V12" />CFP</a>
+        <a href="#/wiki" className={tab === 'wiki' ? 'on' : ''}><TabIcon d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4ZM5 17a3 3 0 0 1 3-3h11M9 8h6" />辞書</a>
       </nav>
       {route.tab !== 'settings' && (
         <a href="#/settings" className="gear" aria-label="設定"><TabIcon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-1-3-2 .2-1.3-1.4.2-2-3-1-1 2h-1.8l-1-2-3 1 .2 2L5 7.2 3 7l-1 3 2 1v2l-2 1 1 3 2-.2 1.3 1.4-.2 2 3 1 1-2h1.8l1 2 3-1-.2-2 1.3-1.4 2 .2 1-3-2-1Z" /></a>

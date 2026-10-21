@@ -1,7 +1,7 @@
 // 配信の読み込みとフィードバックの保存。
 // データは非公開リポジトリ（intel-media-data）に置き、端末に保存したトークンで GitHub API から読み書きする。
 // ?demo を付けると、手元の public/demo/ を読む（公開版には含まれない）。
-import type { Brief, Checklist, ChecksState, Feedback, Issue } from '../types';
+import type { Brief, Checklist, ChecksState, Feedback, Issue, WikiEntry, WikiIndexItem } from '../types';
 import { emptyFeedback } from './feedback';
 import { fromB64, toB64 } from './b64';
 import * as store from './store';
@@ -202,4 +202,23 @@ export async function flushChecks(id: string): Promise<SaveState> {
     store.set(ckKey(id), { data: latest?.data ?? rec.data, sha, dirty: latest ? latest.data.updatedAt !== rec.data.updatedAt : false });
     return 'saved';
   } catch { return 'queued'; }
+}
+
+// ---- FP辞書（wiki/）----
+export const cachedWikiIndex = () => store.get<WikiIndexItem[]>(P + 'wikiIndex') ?? [];
+export async function fetchWikiIndex(): Promise<WikiIndexItem[]> {
+  const res = isDemo() ? await fetch('./demo/wiki/index.json', { cache: 'no-store' }) : await gh('wiki/index.json', {}, true);
+  if (res.status === 404) return [];
+  if (!res.ok) throw new HttpError(res.status);
+  const list = (await res.json()) as WikiIndexItem[];
+  store.set(P + 'wikiIndex', list);
+  return list;
+}
+export const cachedWikiEntry = (id: string) => store.get<WikiEntry>(P + 'wiki:' + id);
+export async function fetchWikiEntry(id: string): Promise<WikiEntry> {
+  const res = isDemo() ? await fetch(`./demo/wiki/entries/${id}.json`, { cache: 'no-store' }) : await gh(`wiki/entries/${id}.json`, {}, true);
+  if (!res.ok) throw new HttpError(res.status);
+  const e = (await res.json()) as WikiEntry;
+  store.set(P + 'wiki:' + id, e);
+  return e;
 }

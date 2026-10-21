@@ -106,18 +106,6 @@ describe('秘書の報告：チェックと持ち越し', () => {
   });
 });
 
-import { isDone, summarize } from './cfp';
-describe('CFP', () => {
-  const s = { total: 684, totals: { risk: 114 }, progressAt: null, answered: { L1: 5, L2: 2 },
-    delivered: [{ id: 'L1', date: '', subject: 'risk', title: 'a', minutes: 30, questions: 5 }, { id: 'L2', date: '', subject: 'risk', title: 'b', minutes: 15, questions: 3 }, { id: 'L3', date: '', subject: 'risk', title: 'c', minutes: 15, questions: 3 }] };
-  it('確認問題をすべて答えた講義だけを解き終えたとみなす', () => {
-    expect(isDone(s, s.delivered[0])).toBe(true);
-    const r = summarize(s);
-    expect(r.open.map((l) => l.id)).toEqual(['L2', 'L3']);
-    expect(r.doneBy).toEqual({ risk: 1 });
-    expect(summarize({ ...s, skip: ['L3'] }).open.map((l) => l.id)).toEqual(['L2']);
-  });
-});
 
 describe('夜の振り返りの日付', () => {
   it('朝4時までは前の日', () => {
@@ -140,4 +128,19 @@ describe('夜の振り返りの集計', () => {
     expect(questionsFor('2026-11-22').some((x) => x.id === 'nyuseki')).toBe(true);
     expect(questionsFor('2026-11-23').some((x) => x.id === 'nyuseki')).toBe(false);
   });
+});
+
+import { newToday, searchWiki } from './wiki';
+describe('FP辞書', () => {
+  const base = { large: 'L', summary: '', updated: '2026-10-22' };
+  const list = [
+    { ...base, id: 'risk.L10.M02', subject: 'risk', middle: '受取保険金と税金', title: '受取保険金と税金 ― 一時所得', created: '2026-10-22' },
+    { ...base, id: 'tax.L01.M01', subject: 'tax', middle: '所得税の仕組み', title: '所得税', created: '2026-10-21' },
+  ];
+  it('検索は語をすべて含むもの、課目で絞れる', () => {
+    expect(searchWiki(list, '一時所得', null).map((e) => e.id)).toEqual(['risk.L10.M02']);
+    expect(searchWiki(list, '税', 'tax').map((e) => e.id)).toEqual(['tax.L01.M01']);
+    expect(searchWiki(list, '', null)).toHaveLength(2);
+  });
+  it('今朝の項目は作成日が今日のもの', () => expect(newToday(list, '2026-10-22').map((e) => e.id)).toEqual(['risk.L10.M02']));
 });

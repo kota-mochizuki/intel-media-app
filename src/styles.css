@@ -302,3 +302,15 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .week thead th.is-today { color: var(--accent); }
 .dot-yes { color: var(--accent); } .dot-no { color: var(--muted); } .dot-none { color: var(--line); }
 .past-link { text-align: center; margin: 8px 0 24px; font-size: 14.5px; }
+.wiki-search { display: block; width: 100%; font: inherit; font-size: 16px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; margin-bottom: 10px; }
+.wiki-subs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.wiki-subs button { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13.5px; cursor: pointer; }
+.wiki-subs button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.wiki-entry { padding-top: 6px; }
+.wiki-title { font-size: 22px; line-height: 1.5; margin: 4px 0 8px; text-wrap: balance; }
+.wiki-summary { font-size: 16px; line-height: 1.8; font-weight: 600; margin: 0 0 16px; }
+.wiki-sec h2 { font-size: 17px; margin: 22px 0 6px; }
+.wiki-nums { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.wiki-nums li { display: grid; gap: 2px; }
+.pickup { border-color: var(--accent); }
+.pickup h3 { margin: 0 0 6px; font-size: 16.5px; }

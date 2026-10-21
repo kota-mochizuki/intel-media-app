@@ -41,3 +41,13 @@ export interface ListItem { id: string; text: string; who: string; due?: string;
 export interface ListSection { id: string; title: string; items: ListItem[] }
 export interface Checklist { id: string; title: string; target?: string; intro?: string; sections: ListSection[] }
 export interface ChecksState { id: string; done: Record<string, boolean>; updatedAt: string }
+
+// FP辞書（intel-media-data の wiki/）
+export interface WikiPickup { type: 'タイムリー' | 'お客様に喜ばれる'; title: string; text?: string; date?: string; source?: { title: string; url: string; publisher: string } }
+export interface WikiIndexItem { id: string; subject: string; large: string; middle: string; title: string; summary: string; created: string; updated: string; pickup?: WikiPickup }
+export interface WikiEntry extends WikiIndexItem {
+  sections: { heading: string; text: string }[];
+  numbers?: { label: string; value: string; note?: string }[];
+  exam: string; talk: string; related?: string[]; unconfirmed?: string[];
+  sources: { title: string; url: string; publisher: string; date?: string }[];
+}
