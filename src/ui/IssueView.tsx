@@ -10,6 +10,7 @@ import { BriefCard, toggleBriefDone, useBrief } from './BriefCard';
 import { ChecklistCards } from './ChecklistCard';
 import { WikiMorningCard, useWikiIndex } from './WikiView';
 import { StudyCard } from './StudyCard';
+import { UseCard } from './UseCard';
 import { newToday } from '../lib/wiki';
 import { todayJst } from '../lib/dates';
 
@@ -55,9 +56,13 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
       </header>
 
       {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} />}
+      {isToday && <h2 className="loop">学ぶ</h2>}
       {isToday && <StudyCard />}
-      {isToday && <ChecklistCards compact />}
       {isToday && <WikiMorningCard items={newToday(wiki, todayJst())} />}
+      {isToday && brief && (brief.use || brief.referral) && <><h2 className="loop">役に立つ</h2><UseCard brief={brief} /></>}
+      {isToday && <h2 className="loop">関係</h2>}
+      {isToday && <ChecklistCards compact />}
+      {isToday && <h2 className="loop">読む</h2>}
 
       {quiz && (
         <section className="card quiz-answer">
@@ -128,6 +133,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
       {item.figure && <Figure fig={item.figure} />}
       <h3 className="sec">私にとって</h3>
       <RichText text={item.why} />
+      {item.talk && <><h3 className="sec">人に話すなら</h3><RichText text={item.talk} /></>}
       {item.action && (
         <label className={`action ${fb.done ? 'is-done' : ''}`}>
           <input type="checkbox" checked={Boolean(fb.done)} onChange={(e) => onChange({ done: e.target.checked })} />

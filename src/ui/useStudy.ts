@@ -26,5 +26,12 @@ export function useStudy() {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { timer.current = undefined; void flushChecks(ID); }, 1000);
   };
-  return { data, st, setScore };
+  /** 模試の点数を足す */
+  const addMock = (book: string, sc: StudyScore) => {
+    const mocks = { ...ref.current.mocks, [book]: [...(ref.current.mocks?.[book] ?? []), sc] };
+    const next: ChecksState = { ...ref.current, mocks, updatedAt: new Date().toISOString() };
+    ref.current = next; setSt(next); saveChecksLocal(next);
+    void flushChecks(ID);
+  };
+  return { data, st, setScore, addMock };
 }

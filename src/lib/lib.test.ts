@@ -185,3 +185,22 @@ describe('1日の目安', () => {
     expect(dailyTarget(book, st, '2026-11-01', '2026-10-31', 20)).toBe(20);
   });
 });
+
+import { reviewSet } from './study';
+describe('2周目の復習', () => {
+  const book: StudyBook = { id: 'risk', subject: 'risk', name: 'リスク', title: '', mock: { total: 50 }, items: [
+    { no: 1, part: '', topic: 'A', level: '', years: '', first: 1, stars: [1, 1, 1] },
+    { no: 2, part: '', topic: 'B', level: '', years: '', first: 4, stars: [1, 1] },
+  ] };
+  const st = (scores: Record<string, { c: number; n: number; d: string }>): ChecksState => ({ id: 'study', done: {}, updatedAt: '', scores });
+  it('間違えた大問は3日後に2回目、その10日後に3回目。開始日の前は出さない', () => {
+    const s1 = st({ 'risk-1': { c: 1, n: 3, d: '2026-11-01' }, 'risk-2': { c: 2, n: 2, d: '2026-11-01' } });
+    expect(reviewSet([book], s1, '2026-11-03', '2026-11-01', 2)).toHaveLength(0);
+    expect(reviewSet([book], s1, '2026-11-04', '2026-11-01', 2).map((r) => [r.item.no, r.round])).toEqual([[1, 2]]);
+    expect(reviewSet([book], s1, '2026-11-04', '2026-11-05', 2)).toHaveLength(0);
+    const s2 = st({ ...s1.scores, 'risk-1#2': { c: 2, n: 3, d: '2026-11-04' } });
+    expect(reviewSet([book], s2, '2026-11-04', '2026-11-01', 2).map((r) => r.round)).toEqual([2]); // 今日記録した分は残る
+    expect(reviewSet([book], s2, '2026-11-13', '2026-11-01', 2)).toHaveLength(0);
+    expect(reviewSet([book], s2, '2026-11-14', '2026-11-01', 2).map((r) => r.round)).toEqual([3]);
+  });
+});

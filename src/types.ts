@@ -13,7 +13,7 @@ export type Figure =
 export interface BonusImage { url: string; alt: string; credit: string; license: string; page: string }
 
 export interface Item {
-  id: string; title: string; why: string; action?: string;
+  id: string; title: string; why: string; action?: string; talk?: string; // talk＝人に話すなら（2026-10-22〜）
   points?: string[]; detail?: string; summary?: string; // summary は古い形式（points/detail 導入前）
   insight: Insight; polish: Polish[]; category: string; outside: boolean;
   sources: Source[]; recencyNote?: string; figure?: Figure;
@@ -26,6 +26,8 @@ export interface BriefTask { text: string; why?: string; due?: string }
 export interface BriefHorizon { line: string; detail?: string }
 export interface Brief {
   id: string; greeting?: string; evening?: string;
+  use?: { title: string; text: string; to?: string }; // 今日使える1つ（お客様・同僚に話せるネタ）
+  referral?: { title: string; text: string; message: string }; // 週1回：紹介元に送れる話題と、そのまま送れる文面
   today: BriefTask[]; week?: BriefTask[]; month?: BriefTask[];
   signals?: { area: string; level: '黄' | '赤'; text: string }[];
   horizon: { year: BriefHorizon; five: BriefHorizon; ten: BriefHorizon };
@@ -47,7 +49,7 @@ export interface StudyScore { c: number; n: number; d: string }
 export interface StudySeed extends StudyScore { upTo: number; note?: string }
 export interface StudyItem { no: number; part: string; topic: string; level: string; years: string; first: number; stars: number[] }
 export interface StudyBook { id: string; subject: string; name: string; title: string; mock: { total: number }; items: StudyItem[] }
-export interface StudyIndex { books: string[]; order: string[]; dailyTarget: number; until?: Record<string, string> }
+export interface StudyIndex { books: string[]; order: string[]; dailyTarget: number; until?: Record<string, string>; reviewFrom?: string; reviewPerDay?: number }
 
 // FP辞書（intel-media-data の wiki/）
 export interface WikiPickup { type: 'タイムリー' | 'お客様に喜ばれる'; title: string; text?: string; date?: string; source?: { title: string; url: string; publisher: string } }
@@ -55,6 +57,6 @@ export interface WikiIndexItem { id: string; subject: string; large: string; mid
 export interface WikiEntry extends WikiIndexItem {
   sections: { heading: string; text: string }[];
   numbers?: { label: string; value: string; note?: string }[];
-  exam: string; talk: string; related?: string[]; unconfirmed?: string[];
+  exam: string; talk: string; related?: string[]; unconfirmed?: string[]; changes?: string; // changes＝2027年1月1日までの改正・変更の予定
   sources: { title: string; url: string; publisher: string; date?: string }[];
 }

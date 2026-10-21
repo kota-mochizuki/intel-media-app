@@ -35,8 +35,9 @@ export function NightView() {
       <section className="card night">
         <p className="muted small">直感で答えてください。正解はありません。</p>
         <ul className="nq">
-          {qs.map((x) => (
+          {qs.map((x, i) => (
             <li key={x.id}>
+              {(i === 0 || qs[i - 1].group !== x.group) && <div className="nq-group">{x.group}</div>}
               <div className="nq-text">{x.text}</div>
               <div className="seg" role="group" aria-label={x.text}>
                 <button className={q[x.id] === true ? 'on' : ''} onClick={() => answer(x.id, true)}>できた</button>

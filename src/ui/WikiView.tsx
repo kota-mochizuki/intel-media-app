@@ -80,6 +80,7 @@ export function WikiEntryView({ id }: { id: string }) {
         <section className="card"><div className="label">数値（2027年1月1日時点）</div>
           <ul className="wiki-nums">{e.numbers.map((n, i) => <li key={i}><span>{n.label}</span><b>{n.value}</b>{n.note && <span className="muted small">{n.note}</span>}</li>)}</ul></section>
       ) : null}
+      {e.changes && <section className="card pickup"><div className="label">改正・変更の予定（過去問の答えが変わる可能性）</div><RichText text={e.changes} /></section>}
       <section className="card"><div className="label">お客様に話すなら</div><RichText text={e.talk} /></section>
       <section className="card"><div className="label">試験での注意</div><RichText text={e.exam} /></section>
       {rel.length > 0 && <section><h3 className="sec">関連する項目</h3><ul className="cfp-list">{rel.map((r) => <WikiRow key={r.id} e={r} />)}</ul></section>}

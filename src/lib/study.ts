@@ -57,3 +57,25 @@ export function dailyTarget(book: StudyBook, st: ChecksState, today: string, unt
   const left = book.items.filter((it) => !isDone(st, book, it) || st.scores?.[scoreKey(book.id, it.no)]?.d === today).reduce((s, it) => s + it.stars.length, 0);
   return Math.max(1, Math.ceil(left / days));
 }
+
+/** 2周目の復習：1周目で全問正解できなかった大問を、3日後（2回目）と10日後（3回目）にもう一度。記録のキーは「risk-7#2」「risk-7#3」 */
+export const reviewKey = (book: string, no: number, round: 2 | 3) => `${scoreKey(book, no)}#${round}`;
+const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
+export function reviewSet(books: StudyBook[], st: ChecksState, today: string, from: string | undefined, perDay: number) {
+  if (!from || today < from) return [];
+  const out: { book: StudyBook; item: StudyItem; round: 2 | 3 }[] = [];
+  for (const book of books) for (const it of book.items) {
+    const s1 = st.scores?.[scoreKey(book.id, it.no)];
+    if (!s1 || s1.c >= s1.n) continue;
+    const s2 = st.scores?.[reviewKey(book.id, it.no, 2)], s3 = st.scores?.[reviewKey(book.id, it.no, 3)];
+    if (s2?.d === today) out.push({ book, item: it, round: 2 });
+    else if (s3?.d === today) out.push({ book, item: it, round: 3 });
+    else if (!s2 && daysBetween(s1.d, today) >= 3) out.push({ book, item: it, round: 2 });
+    else if (s2 && !s3 && daysBetween(s2.d, today) >= 10) out.push({ book, item: it, round: 3 });
+  }
+  // 今日記録した分は残し、そのうえで1日 perDay 大問まで（正答率の低い順）
+  const rate = (x: (typeof out)[number]) => { const s = st.scores![scoreKey(x.book.id, x.item.no)]; return s.c / s.n; };
+  const isToday = (x: (typeof out)[number]) => st.scores?.[reviewKey(x.book.id, x.item.no, x.round)]?.d === today;
+  const kept = out.filter(isToday), rest = out.filter((x) => !isToday(x)).sort((a, b) => rate(a) - rate(b));
+  return [...kept, ...rest].slice(0, Math.max(perDay, kept.length));
+}
