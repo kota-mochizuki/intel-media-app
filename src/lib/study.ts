@@ -79,3 +79,26 @@ export function reviewSet(books: StudyBook[], st: ChecksState, today: string, fr
   const kept = out.filter(isToday), rest = out.filter((x) => !isToday(x)).sort((a, b) => rate(a) - rate(b));
   return [...kept, ...rest].slice(0, Math.max(perDay, kept.length));
 }
+
+/** その日に過去問を1つでも記録したか（1周目・復習のどちらでも）。最低ラインの達成＝これ */
+export const studiedOn = (st: ChecksState, day: string) => Object.values(st.scores ?? {}).some((s) => s.d === day);
+
+/** 直近 n 日（今日を含む）のうち、過去問に触れた日数。量ではなく、続けた日を数える */
+export function touchedDays(st: ChecksState, today: string, n = 7): number {
+  const from = new Date(Date.parse(today) - (n - 1) * 86_400_000).toISOString().slice(0, 10);
+  return new Set(Object.values(st.scores ?? {}).map((s) => s.d).filter((d) => d >= from && d <= today)).size;
+}
+
+/** 今日の過去問の組み立て（先生タブのカードと、秘書タブの「今日やること」の1行で共有する）。
+ *  first＝最低ライン：今日の範囲でまだ記録していない最初の大問（なければ復習の1つ） */
+export interface PlanRow { k: string; it: StudyItem; label: string }
+export function planFor(index: { order: string[]; until?: Record<string, string>; dailyTarget: number; reviewFrom?: string; reviewPerDay?: number }, books: StudyBook[], st: ChecksState, day: string) {
+  const book = currentBook(books, index.order, st);
+  const reviews = reviewSet(books, st, day, index.reviewFrom, index.reviewPerDay ?? 2);
+  const until = book ? index.until?.[book.id] : undefined;
+  const set = book ? todaySet(book, st, day, dailyTarget(book, st, day, until, index.dailyTarget)) : [];
+  const bookRows: PlanRow[] = book ? set.map((it) => ({ k: scoreKey(book.id, it.no), it, label: `問${it.no}` })) : [];
+  const reviewRows: PlanRow[] = reviews.map((r) => ({ k: reviewKey(r.book.id, r.item.no, r.round), it: r.item, label: `${r.book.name} 問${r.item.no}（${r.round}回目）` }));
+  const first = [...bookRows, ...reviewRows].find((r) => !st.scores?.[r.k]);
+  return { book, until, set, bookRows, reviewRows, first, done: studiedOn(st, day) };
+}

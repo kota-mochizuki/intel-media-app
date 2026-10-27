@@ -24,7 +24,7 @@ export function WikiView() {
     <div className="wikiview">
       <header className="masthead masthead-brief">
         <div className="masthead-date">FP辞書</div>
-        <div className="masthead-row"><span className="theme">{list.length} / {WIKI_TOTAL} 項目</span><span className="muted small">毎晩3項目ずつ増えます</span></div>
+        <div className="masthead-row"><span className="theme">{list.length} / {WIKI_TOTAL} 項目</span><span className="muted small">毎晩書き足されます</span></div>
       </header>
       <input className="wiki-search" type="search" placeholder="調べたい言葉（例：一時所得、小規模宅地）" value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="wiki-subs">
@@ -81,6 +81,7 @@ export function WikiEntryView({ id }: { id: string }) {
           <ul className="wiki-nums">{e.numbers.map((n, i) => <li key={i}><span>{n.label}</span><b>{n.value}</b>{n.note && <span className="muted small">{n.note}</span>}</li>)}</ul></section>
       ) : null}
       {e.changes && <section className="card pickup"><div className="label">改正・変更の予定（過去問の答えが変わる可能性）</div><RichText text={e.changes} /></section>}
+      {e.watch && <section className="card pickup"><div className="label">⚠ 変わりやすい点（使う前に最新を確認）</div><RichText text={e.watch} /></section>}
       <section className="card"><div className="label">お客様に話すなら</div><RichText text={e.talk} /></section>
       <section className="card"><div className="label">試験での注意</div><RichText text={e.exam} /></section>
       {rel.length > 0 && <section><h3 className="sec">関連する項目</h3><ul className="cfp-list">{rel.map((r) => <WikiRow key={r.id} e={r} />)}</ul></section>}
@@ -90,17 +91,5 @@ export function WikiEntryView({ id }: { id: string }) {
       </details>
       <p className="muted small">更新 {e.updated}</p>
     </article>
-  );
-}
-
-/** 朝の画面：今朝届いた項目（ピックアップを先に） */
-export function WikiMorningCard({ items }: { items: WikiIndexItem[] }) {
-  if (!items.length) return null;
-  const sorted = [...items].sort((a, b) => Number(Boolean(b.pickup)) - Number(Boolean(a.pickup)));
-  return (
-    <section className="card wiki-morning">
-      <div className="label">今朝のFP辞書</div>
-      <ul className="cfp-list">{sorted.map((e) => <WikiRow key={e.id} e={e} />)}</ul>
-    </section>
   );
 }

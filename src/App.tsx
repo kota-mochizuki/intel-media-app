@@ -4,18 +4,21 @@ import { todayJst } from './lib/dates';
 import { IssueView } from './ui/IssueView';
 import { Past } from './ui/Past';
 import { Settings } from './ui/Settings';
-import { WikiEntryView, WikiView } from './ui/WikiView';
-import { NightView } from './ui/NightView';
+import { WikiEntryView } from './ui/WikiView';
+import { SecretaryView } from './ui/SecretaryView';
+import { CoachView } from './ui/CoachView';
 import { StudyView } from './ui/StudyCard';
+import { ListsView } from './ui/ChecklistCard';
 
-type Route = { tab: 'today' } | { tab: 'study' } | { tab: 'night' } | { tab: 'wiki' } | { tab: 'wikiEntry'; id: string } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
+type Route = { tab: 'today' } | { tab: 'study' } | { tab: 'lists' } | { tab: 'coach' } | { tab: 'editor' } | { tab: 'wikiEntry'; id: string } | { tab: 'past' } | { tab: 'issue'; id: string } | { tab: 'settings' };
 const parse = (): Route => {
   const h = location.hash.replace(/^#\/?/, '');
   const m = h.match(/^issue\/(\d{4}-\d{2}-\d{2})$/);
   if (m) return { tab: 'issue', id: m[1] };
   const w = h.match(/^wiki\/([\w.]+)$/);
   if (w) return { tab: 'wikiEntry', id: w[1] };
-  return h === 'study' ? { tab: 'study' } : h === 'night' ? { tab: 'night' } : h === 'wiki' ? { tab: 'wiki' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
+  // 夜タブは 2026-10-27 に廃止（振り返りは翌朝に秘書タブで）。古いリンク #/night は秘書へ、#/wiki は先生へ
+  return h === 'study' ? { tab: 'study' } : h === 'lists' ? { tab: 'lists' } : h === 'coach' || h === 'wiki' ? { tab: 'coach' } : h === 'editor' ? { tab: 'editor' } : h === 'past' ? { tab: 'past' } : h === 'settings' ? { tab: 'settings' } : { tab: 'today' };
 };
 
 export function App() {
@@ -46,19 +49,20 @@ export function App() {
   // 「今日」は、今日以前でいちばん新しい配信
   const today = todayJst();
   const latest = ids.find((id) => id <= today) ?? ids[0];
-  const tab = route.tab === 'issue' || route.tab === 'past' || route.tab === 'study' ? 'today' : route.tab === 'wikiEntry' ? 'wiki' : route.tab; // 過去の配信は朝の画面の下から開く
+  // タブ：秘書（やること）・先生（CFPと辞書）・編集長（読み物）
+  const tab = route.tab === 'lists' ? 'today' : route.tab === 'study' || route.tab === 'wikiEntry' ? 'coach' : route.tab === 'issue' || route.tab === 'past' ? 'editor' : route.tab;
 
   let body;
   if (route.tab === 'settings') body = <Settings onSaved={() => { setConfigured(isConfigured()); }} />;
   else if (!configured) body = <Welcome />;
-  else if (route.tab === 'night') body = <NightView />;
   else if (route.tab === 'study') body = <StudyView />;
-  else if (route.tab === 'wiki') body = <WikiView />;
+  else if (route.tab === 'lists') body = <ListsView />;
+  else if (route.tab === 'coach') body = <CoachView />;
   else if (route.tab === 'wikiEntry') body = <WikiEntryView key={route.id} id={route.id} />;
   else if (route.tab === 'past') body = <Past ids={ids} />;
   else if (route.tab === 'issue') body = <IssueView key={route.id} id={route.id} ids={ids} />;
-  else if (latest) body = <IssueView key={latest} id={latest} ids={ids} isToday />;
-  else body = <Empty />;
+  else if (route.tab === 'editor') body = latest ? <IssueView key={latest} id={latest} ids={ids} isToday /> : <Empty />;
+  else body = <SecretaryView />;
 
   return (
     <>
@@ -66,9 +70,9 @@ export function App() {
       {error && <div className="banner banner-warn">{error}　<a href="#/settings">設定を確認</a></div>}
       <main className="main">{body}</main>
       <nav className="tabbar" aria-label="メニュー">
-        <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M12 3v2M5.6 6.6l1.4 1.4M3 13h2M19 13h2M17 8l1.4-1.4M7 17a5 5 0 0 1 10 0M3 20h18" />朝</a>
-        <a href="#/night" className={tab === 'night' ? 'on' : ''}><TabIcon d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />夜</a>
-        <a href="#/wiki" className={tab === 'wiki' ? 'on' : ''}><TabIcon d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4ZM5 17a3 3 0 0 1 3-3h11M9 8h6" />辞書</a>
+        <a href="#/" className={tab === 'today' ? 'on' : ''}><TabIcon d="M8 4h8M9 2h6v4H9zM6 4H5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-1M8 12l2.5 2.5L16 9" />秘書</a>
+        <a href="#/coach" className={tab === 'coach' ? 'on' : ''}><TabIcon d="M2 9l10-5 10 5-10 5-10-5ZM6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6" />先生</a>
+        <a href="#/editor" className={tab === 'editor' ? 'on' : ''}><TabIcon d="M4 5h12a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2V5ZM18 9h2v9a1 1 0 0 1-2 0M8 9h6M8 13h6M8 17h3" />編集長</a>
       </nav>
       {route.tab !== 'settings' && (
         <a href="#/settings" className="gear" aria-label="設定"><TabIcon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-1-3-2 .2-1.3-1.4.2-2-3-1-1 2h-1.8l-1-2-3 1 .2 2L5 7.2 3 7l-1 3 2 1v2l-2 1 1 3 2-.2 1.3 1.4-.2 2 3 1 1-2h1.8l1 2 3-1-.2-2 1.3-1.4 2 .2 1-3-2-1Z" /></a>

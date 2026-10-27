@@ -6,13 +6,6 @@ import { setItem } from '../lib/feedback';
 import { useFeedback, type Status } from './useFeedback';
 import { Artwork, Figure } from './Figure';
 import { Inline, RichText } from './RichText';
-import { BriefCard, toggleBriefDone, useBrief } from './BriefCard';
-import { ChecklistCards } from './ChecklistCard';
-import { WikiMorningCard, useWikiIndex } from './WikiView';
-import { StudyCard } from './StudyCard';
-import { UseCard } from './UseCard';
-import { newToday } from '../lib/wiki';
-import { todayJst } from '../lib/dates';
 
 const CATEGORY: Record<string, string> = { A: '今すぐ', B: '専門性', C: '将来の選択肢', D: '好奇心', E: '認識の更新' };
 const KIND: Record<string, string> = { deepdive: '深掘り', digest: 'まとめ' };
@@ -29,14 +22,12 @@ function useIssue(id: string | undefined) {
   return { issue, error };
 }
 
-/** 1日分の画面。isToday のときだけ、やることリスト（入籍の準備など）も出す */
+/** 「編集長」タブ：1日分の配信（読み物）。isToday は今日の配信（下に過去の配信へのリンク） */
 export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isToday?: boolean }) {
   const { issue, error } = useIssue(id);
   const prevId = ids[ids.indexOf(id) + 1];
   const { issue: prev } = useIssue(prevId);
   const { fb, update, status } = useFeedback(id);
-  const brief = useBrief(id);
-  const wiki = useWikiIndex(); // 秘書の報告は同じ日のフィードバックに書くので、更新は1つの useFeedback にまとめる
   const theme = themeOf(id);
 
   if (!issue) return error ? <section className="card welcome"><p>{error}</p></section> : <Skeleton />;
@@ -48,21 +39,13 @@ export function IssueView({ id, ids, isToday }: { id: string; ids: string[]; isT
       <header className="masthead">
         <div className="masthead-date">{formatDate(id)}</div>
         <div className="masthead-row">
-          <span className="theme">{KIND[issue.kind] ?? theme.name}</span>
+          <span className="theme">編集長から・{KIND[issue.kind] ?? theme.name}</span>
           <span className="muted">約{readMinutes(issue)}分</span>
           {fb.read && <span className="read-mark">読了</span>}
           <SaveBadge status={status} />
         </div>
       </header>
 
-      {brief && <BriefCard compact brief={brief} fb={fb} onToggle={(i) => update((f) => toggleBriefDone(f, i))} />}
-      {isToday && <h2 className="loop">学ぶ</h2>}
-      {isToday && <StudyCard />}
-      {isToday && <WikiMorningCard items={newToday(wiki, todayJst())} />}
-      {isToday && brief && (brief.use || brief.referral) && <><h2 className="loop">役に立つ</h2><UseCard brief={brief} /></>}
-      {isToday && <h2 className="loop">関係</h2>}
-      {isToday && <ChecklistCards compact />}
-      {isToday && <h2 className="loop">読む</h2>}
 
       {quiz && (
         <section className="card quiz-answer">

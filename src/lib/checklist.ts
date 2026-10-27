@@ -11,6 +11,11 @@ export function progress(c: Checklist, done: Record<string, boolean>) {
 export const daysUntil = (date: string, today: string) =>
   Math.round((Date.parse(date + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86400_000);
 
+/** 時期が来た項目：まだ終わっていなくて、期限まで days 日以内（過ぎたものも含む）。期限が近い順。期限のない項目は出さない */
+export function dueSoon(c: Checklist, done: Record<string, boolean>, today: string, days = 7): ListItem[] {
+  return allItems(c).filter((i) => !done[i.id] && i.due && daysUntil(i.due, today) <= days).sort((a, b) => a.due!.localeCompare(b.due!));
+}
+
 /** まだ終わっていない項目のうち、期限が近い順に n 個（期限のないものは最後） */
 export function nextItems(c: Checklist, done: Record<string, boolean>, n = 3): ListItem[] {
   const open = allItems(c).filter((i) => !done[i.id]);

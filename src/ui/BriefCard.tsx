@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import type { Brief, BriefFeedback, BriefTask, Feedback } from '../types';
 import { cachedBrief, fetchBrief } from '../lib/data';
@@ -30,7 +31,7 @@ export const toggleBriefDone = (f: Feedback, i: number): Feedback => {
 export const setBrief = (f: Feedback, patch: Partial<BriefFeedback>): Feedback => ({ ...f, brief: { done: [], ...f.brief, ...patch } });
 
 /** 秘書の朝の報告。今日やることはチェックでき、翌朝の秘書が読む。compact は「今日」画面の上に置く短い版 */
-export function BriefCard({ brief, fb, onToggle, compact }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void; compact?: boolean }) {
+export function BriefCard({ brief, fb, onToggle, compact, extra }: { brief: Brief; fb: Feedback; onToggle: (i: number) => void; compact?: boolean; extra?: ReactNode }) {
   const done = new Set(fb.brief?.done ?? []);
   const h = brief.horizon;
   const later = (
@@ -56,7 +57,9 @@ export function BriefCard({ brief, fb, onToggle, compact }: { brief: Brief; fb: 
             </label>
           </li>
         ))}
+        {extra}
       </ul>
+      {compact && <p className="small"><a href="#/lists">やることリストをすべて見る</a></p>}
       <Reflection fb={fb.brief} />
       {compact ? <details className="fold"><summary>今週・今月</summary>{later}</details> : later}
       <details className="fold horizon">

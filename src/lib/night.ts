@@ -26,3 +26,11 @@ export function tally(qs: (Record<string, boolean> | undefined)[], list: NightQu
     return [x.id, { yes: a.filter((q) => q![x.id]).length, answered: a.length }];
   })) as Record<string, { yes: number; answered: number }>;
 }
+
+/** 翌朝の振り返りで聞く、日替わりの1問（5問を日付で順番に回す） */
+export function questionOfDay(day: string): NightQuestion {
+  const n = Math.round(Date.parse(day + 'T00:00:00Z') / 86_400_000);
+  return NIGHT_QUESTIONS[((n % NIGHT_QUESTIONS.length) + NIGHT_QUESTIONS.length) % NIGHT_QUESTIONS.length];
+}
+/** 「今日、〜」の問いを、翌朝に聞く形「昨日、〜」にする */
+export const asYesterday = (text: string) => text.replace(/^今日/, '昨日').replace('今日の自分', '昨日の自分');

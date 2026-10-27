@@ -1,7 +1,7 @@
 // 配信の読み込みとフィードバックの保存。
 // データは非公開リポジトリ（intel-media-data）に置き、端末に保存したトークンで GitHub API から読み書きする。
 // ?demo を付けると、手元の public/demo/ を読む（公開版には含まれない）。
-import type { Brief, Checklist, ChecksState, Feedback, Issue, StudyBook, StudyIndex, WikiEntry, WikiIndexItem } from '../types';
+import type { Brief, Checklist, CoachNote, ChecksState, Feedback, Issue, StudyBook, StudyIndex, WikiEntry, WikiIndexItem } from '../types';
 import { emptyFeedback } from './feedback';
 import { fromB64, toB64 } from './b64';
 import * as store from './store';
@@ -70,6 +70,17 @@ export async function fetchBrief(id: string): Promise<Brief | null> {
   const b = (await res.json()) as Brief;
   store.set(P + 'brief:' + id, b);
   return b;
+}
+
+// ---- CFPの先生の朝の一言（なければ null）----
+export const cachedCoach = (id: string) => store.get<CoachNote>(P + 'coach:' + id);
+export async function fetchCoach(id: string): Promise<CoachNote | null> {
+  const res = isDemo() ? await fetch(`./demo/coach/${id}.json`, { cache: 'no-store' }) : await gh(`coach/notes/${id}.json`, {}, true);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new HttpError(res.status);
+  const c = (await res.json()) as CoachNote;
+  store.set(P + 'coach:' + id, c);
+  return c;
 }
 
 // ---- フィードバック ----
