@@ -2,8 +2,8 @@ import type { Issue } from '../types';
 
 // 曜日ごとのテーマと色（PROMPT.md 第19節）。0=日
 export const THEMES = [
-  { name: '読み物', hue: 'sun' }, { name: '仕事の最新', hue: 'mon' }, { name: 'お金と暮らし', hue: 'tue' },
-  { name: '体と健康', hue: 'wed' }, { name: 'AIと未来', hue: 'thu' }, { name: '週末の遊び', hue: 'fri' }, { name: '深掘り', hue: 'sat' },
+  { name: '人と思想', hue: 'sun' }, { name: '事業のアイデア', hue: 'mon' }, { name: '科学の発見', hue: 'tue' },
+  { name: '体と健康', hue: 'wed' }, { name: 'AIと未来', hue: 'thu' }, { name: 'デザインと文化', hue: 'fri' }, { name: '深掘り（綜合）', hue: 'sat' },
 ] as const;
 const WD = ['日', '月', '火', '水', '木', '金', '土'];
 

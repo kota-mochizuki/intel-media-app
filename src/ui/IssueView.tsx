@@ -101,6 +101,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
       <div className="chips">
         <span className="chip">{CATEGORY[item.category] ?? item.category}</span>
         {item.outside && <span className="chip chip-outside">外側</span>}
+        {item.cross && item.cross.length >= 2 && <span className="chip chip-cross">{item.cross.join(' × ')}</span>}
       </div>
       <h2 className="title"><Inline text={item.title} /></h2>
       <div className="insight">
@@ -114,6 +115,7 @@ function ItemCard({ item, fb, onChange }: { item: Item; fb: ItemFeedback; onChan
         </>
       ) : item.summary && <RichText text={item.summary} />}
       {item.figure && <Figure fig={item.figure} />}
+      {item.link && <div className="link-box"><div className="insight-label">つながり</div><p><Inline text={item.link} /></p></div>}
       <h3 className="sec">私にとって</h3>
       <RichText text={item.why} />
       {item.talk && <><h3 className="sec">人に話すなら</h3><RichText text={item.talk} /></>}

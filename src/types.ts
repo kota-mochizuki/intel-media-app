@@ -13,6 +13,7 @@ export type Figure =
 export interface BonusImage { url: string; alt: string; credit: string; license: string; page: string }
 
 export interface Item {
+  cross?: string[]; link?: string; // 掛け算の記事で掛け合わせた分野（2つ以上）と、本人がすでに持っている知識とのつながり（2026-10-28〜）
   id: string; title: string; why: string; action?: string; talk?: string; // talk＝人に話すなら（2026-10-22〜）
   points?: string[]; detail?: string; summary?: string; // summary は古い形式（points/detail 導入前）
   insight: Insight; polish: Polish[]; category: string; outside: boolean;
