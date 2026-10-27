@@ -202,3 +202,58 @@ describe('2周目の復習', () => {
     expect(reviewSet([book], s2, '2026-11-14', '2026-11-01', 2).map((r) => r.round)).toEqual([3]);
   });
 });
+
+import { studiedOn, touchedDays } from './study';
+describe('過去問の最低ラインと続けた日数', () => {
+  const st = { id: 'x', done: {}, updatedAt: '', scores: {
+    'risk-1': { c: 1, n: 3, d: '2026-10-27' }, 'risk-2': { c: 3, n: 3, d: '2026-10-25' },
+    'risk-3#2': { c: 2, n: 3, d: '2026-10-25' }, 'risk-4': { c: 0, n: 3, d: '2026-10-20' },
+  } };
+  it('1つでも記録した日は最低ライン達成（復習も数える）', () => {
+    expect(studiedOn(st, '2026-10-27')).toBe(true);
+    expect(studiedOn(st, '2026-10-26')).toBe(false);
+  });
+  it('直近7日で触れた日数（同じ日は1日、7日より前は数えない）', () => {
+    expect(touchedDays(st, '2026-10-27')).toBe(2);
+    expect(touchedDays(st, '2026-10-26')).toBe(2);
+    expect(touchedDays({ ...st, scores: undefined }, '2026-10-27')).toBe(0);
+  });
+});
+
+import { dueSoon } from './checklist';
+describe('やることリスト：時期が来た項目', () => {
+  const c = { id: 'x', title: 't', sections: [{ id: 's', title: 's', items: [
+    { id: 'a', text: 'a', who: '本人', due: '2026-11-08' }, { id: 'b', text: 'b', who: '本人', due: '2026-11-03' },
+    { id: 'c', text: 'c', who: '本人', due: '2026-10-25' }, { id: 'd', text: 'd', who: '本人' }, { id: 'e', text: 'e', who: '本人', due: '2026-10-30' },
+  ] }] } as never;
+  it('期限の7日前から出す（過ぎたものも出す、期限なしと済みは出さない、期限が近い順）', () => {
+    expect(dueSoon(c, { e: true }, '2026-10-27').map((i) => i.id)).toEqual(['c', 'b']);
+    expect(dueSoon(c, {}, '2026-11-01').map((i) => i.id)).toEqual(['c', 'e', 'b', 'a']);
+  });
+});
+
+import { cautions, parseForecast, type Wx } from './weather';
+describe('天気の注意', () => {
+  const base: Wx = { date: '2026-10-27', code: 1, max: 20, min: 12, prevMax: 19, rainSum: 0, rainProb: 10, gust: 6, hourlyProb: [] };
+  it('穏やかな日は何も出さない', () => expect(cautions(base)).toEqual([]));
+  it('雨：傘と降り出しの時刻（6時以降で50%以上の最初の時間）', () => {
+    const c = cautions({ ...base, rainProb: 80, rainSum: 4, hourlyProb: [{ hour: 3, p: 80 }, { hour: 7, p: 20 }, { hour: 15, p: 60 }] });
+    expect(c).toEqual([{ level: '注意', text: '傘を持って出かけましょう（日中の降水確率60%、15時ごろから）' }]);
+  });
+  it('深夜だけの雨（雨量0mm）では傘を勧めない', () => {
+    expect(cautions({ ...base, rainProb: 90, rainSum: 0, hourlyProb: [{ hour: 0, p: 90 }, { hour: 6, p: 53 }, { hour: 9, p: 25 }] })).toEqual([]);
+  });
+  it('大雨・強風・猛暑・冷え込み・寒暖差', () => {
+    expect(cautions({ ...base, rainSum: 45 })[0].level).toBe('警戒');
+    expect(cautions({ ...base, gust: 16 })[0].text).toContain('強い風');
+    expect(cautions({ ...base, max: 36, prevMax: 34 })[0].text).toContain('猛暑日');
+    expect(cautions({ ...base, min: -1 })[0].text).toContain('凍結');
+    expect(cautions({ ...base, max: 12, prevMax: 20 })[0].text).toBe('昨日より最高気温が8℃低い（12℃）。服装の調整を');
+  });
+  it('Open-Meteo の返事から今日の分を取り出す', () => {
+    const j = { daily: { time: ['2026-10-26', '2026-10-27'], weather_code: [3, 61], temperature_2m_max: [22, 15], temperature_2m_min: [14, 10], precipitation_sum: [0, 8], precipitation_probability_max: [5, 90], wind_gusts_10m_max: [5, 9] },
+      hourly: { time: ['2026-10-26T23:00', '2026-10-27T08:00'], precipitation_probability: [0, 90] } };
+    expect(parseForecast(j, '2026-10-27')).toMatchObject({ code: 61, max: 15, prevMax: 22, rainSum: 8, hourlyProb: [{ hour: 8, p: 90 }] });
+    expect(parseForecast(j, '2026-10-28')).toBeNull();
+  });
+});

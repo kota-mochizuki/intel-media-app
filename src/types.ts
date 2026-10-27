@@ -34,7 +34,7 @@ export interface Brief {
 }
 
 /** 秘書の報告への反応。done＝今日やることのチェック。夜の振り返り（q＝問いごとの できた/できなかった、memo＝ひとこと）は翌朝の秘書が読む */
-export interface BriefFeedback { done: number[]; q?: Record<string, boolean>; memo?: string }
+export interface BriefFeedback { done: number[]; q?: Record<string, boolean>; memo?: string; mood?: 1 | 2 | 3; win?: string } // mood・win＝翌朝の振り返り（2026-10-27〜）
 export interface ItemFeedback { star?: boolean; note?: string; done?: boolean }
 export interface Feedback { id: string; read: boolean; note?: string; answer?: string; brief?: BriefFeedback; items: Record<string, ItemFeedback>; updatedAt: string }
 
@@ -57,6 +57,9 @@ export interface WikiIndexItem { id: string; subject: string; large: string; mid
 export interface WikiEntry extends WikiIndexItem {
   sections: { heading: string; text: string }[];
   numbers?: { label: string; value: string; note?: string }[];
-  exam: string; talk: string; related?: string[]; unconfirmed?: string[]; changes?: string; // changes＝2027年1月1日までの改正・変更の予定
+  exam: string; talk: string; related?: string[]; unconfirmed?: string[]; changes?: string; watch?: string; // changes＝2027年1月1日までの改正・変更の予定、watch＝変わりやすい点（毎年改定・時限措置・見直し議論中）
   sources: { title: string; url: string; publisher: string; date?: string }[];
 }
+
+/** CFPの先生（塾の先生役のAI）の朝の一言。coach/notes/<日付>.json。毎朝5時15分に、前日までの振り返りと過去問の記録から書く */
+export interface CoachNote { id: string; look: string; today: string; plan?: string }

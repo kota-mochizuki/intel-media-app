@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Checklist, ListItem } from '../types';
 import { cachedList, cachedListIds, fetchList, fetchListIds } from '../lib/data';
-import { daysUntil, nextItems, progress } from '../lib/checklist';
+import { daysUntil, dueSoon, nextItems, progress } from '../lib/checklist';
 import { formatDate, todayJst } from '../lib/dates';
 import { Inline } from './RichText';
 import { useChecks } from './useChecks';
@@ -15,6 +15,58 @@ export function ChecklistCards({ compact }: { compact?: boolean }) {
     return () => { off = true; };
   }, []);
   return <>{ids.map((id) => <ChecklistOf key={id} id={id} compact={compact} />)}</>;
+}
+
+/** 朝の「今日やること」に混ぜる行：やることリストのうち、時期が来た項目（期限の7日前から）。押した項目は画面を開き直すまで残す */
+export function DueListTasks() {
+  const [ids, setIds] = useState<string[]>(cachedListIds);
+  useEffect(() => {
+    let off = false;
+    fetchListIds().then((x) => { if (!off) setIds(x); }).catch(() => { /* 控えのまま */ });
+    return () => { off = true; };
+  }, []);
+  return <>{ids.map((id) => <DueOf key={id} id={id} />)}</>;
+}
+
+function DueOf({ id }: { id: string }) {
+  const [list, setList] = useState<Checklist | null>(() => cachedList(id));
+  useEffect(() => {
+    let off = false;
+    fetchList(id).then((l) => { if (!off) setList(l); }).catch(() => { /* 控えのまま */ });
+    return () => { off = true; };
+  }, [id]);
+  const { done, toggle } = useChecks(id);
+  const [kept, setKept] = useState<Set<string>>(new Set());
+  if (!list) return null;
+  const today = todayJst();
+  const open = Object.fromEntries(Object.entries(done).filter(([k]) => !kept.has(k)));
+  return (
+    <>
+      {dueSoon(list, open, today).map((i) => {
+        const left = daysUntil(i.due!, today);
+        return (
+          <li key={i.id}>
+            <label className={done[i.id] ? 'is-done' : ''}>
+              <input type="checkbox" checked={Boolean(done[i.id])} onChange={() => { if (!done[i.id]) setKept((k) => new Set(k).add(i.id)); toggle(i.id); }} />
+              <span><Inline text={i.text} /><span className="brief-why">{list.title}・{left < 0 ? `期限を${-left}日過ぎています` : left === 0 ? '今日まで' : `〜${Number(i.due!.slice(5, 7))}/${Number(i.due!.slice(8, 10))}（あと${left}日）`}</span></span>
+            </label>
+          </li>
+        );
+      })}
+    </>
+  );
+}
+
+/** やることリストの全体（#/lists） */
+export function ListsView() {
+  return (
+    <div className="listsview">
+      <p className="small"><a href="#/">← 朝</a></p>
+      <h1 className="page-title">やることリスト</h1>
+      <p className="muted small">期限の7日前になると、朝の「今日やること」に出ます。</p>
+      <ChecklistCards />
+    </div>
+  );
 }
 
 function ChecklistOf({ id, compact }: { id: string; compact?: boolean }) {
