@@ -348,3 +348,7 @@ strong { font-weight: 800; background: linear-gradient(transparent 62%, var(--ac
 .min-row.is-done .min-check { background: var(--accent); }
 .min-row.is-done > span { color: var(--muted); text-decoration: line-through; }
 .coachview, .secretaryview { display: grid; gap: 0; }
+/* 掛け算の記事とつながり（編集長、2026-10-28〜） */
+.chip-cross { background: var(--soft); color: var(--accent); font-weight: 700; }
+.link-box { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; margin: 14px 0 4px; }
+.link-box p { margin: 4px 0 0; }

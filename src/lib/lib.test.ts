@@ -7,7 +7,7 @@ import type { Issue } from '../types';
 describe('dates', () => {
   it('曜日とテーマ（端末のタイムゾーンに左右されない）', () => {
     expect(weekday('2026-10-21')).toBe(3);
-    expect(themeOf('2026-10-23').name).toBe('週末の遊び');
+    expect(themeOf('2026-10-23').name).toBe('デザインと文化');
     expect(formatDate('2026-10-25')).toBe('10月25日（日）');
   });
   it('日本時間の今日', () => {
