@@ -257,3 +257,12 @@ describe('天気の注意', () => {
     expect(parseForecast(j, '2026-10-28')).toBeNull();
   });
 });
+
+import { normalizeIssue } from './data';
+describe('記事0件の配信（items が無い）', () => {
+  it('空の一覧で補い、読む時間の計算で落ちない', () => {
+    const issue = normalizeIssue({ id: '2026-11-04', kind: 'digest', note: '今日は重要な更新なし。' });
+    expect(issue.items).toEqual([]);
+    expect(readMinutes(issue)).toBe(1);
+  });
+});

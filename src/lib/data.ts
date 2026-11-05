@@ -36,7 +36,7 @@ async function gh(path: string, init: RequestInit = {}, raw = false): Promise<Re
 
 // ---- 配信 ----
 export const cachedIds = () => store.get<string[]>(P + 'ids') ?? [];
-export const cachedIssue = (id: string) => store.get<Issue>(P + 'issue:' + id);
+export const cachedIssue = (id: string): Issue | null => { const i = store.get<Issue>(P + 'issue:' + id); return i ? normalizeIssue(i) : null; };
 
 /** 配信の日付一覧（新しい順） */
 export async function fetchIds(): Promise<string[]> {
@@ -53,10 +53,16 @@ export async function fetchIds(): Promise<string[]> {
   return ids;
 }
 
+/** 記事0件の配信で items が抜けていても落ちないように、空の一覧で補う（2026-11-05） */
+export const normalizeIssue = (raw: unknown): Issue => {
+  const i = (raw ?? {}) as Issue;
+  return { ...i, items: Array.isArray(i.items) ? i.items : [] };
+};
+
 export async function fetchIssue(id: string): Promise<Issue> {
   const res = isDemo() ? await fetch(`./demo/issues/${id}.json`, { cache: 'no-store' }) : await gh(`issues/${id}.json`, {}, true);
   if (!res.ok) throw new HttpError(res.status);
-  const issue = (await res.json()) as Issue;
+  const issue = normalizeIssue(await res.json());
   store.set(P + 'issue:' + id, issue);
   return issue;
 }
